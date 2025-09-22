@@ -1,0 +1,5 @@
+docs/informe_ieee/*
+
+# Add only the following files
+!docs/informe_ieee/*.tex
+!docs/informe_ieee/*.pdf
