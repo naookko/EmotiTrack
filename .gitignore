@@ -8,3 +8,4 @@ docs/informe_ieee/*
 *.pyc
 
 .env
+.sqlite3

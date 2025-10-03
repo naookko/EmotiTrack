@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -11,6 +12,7 @@ class WebhookLog:
     input_phone: str
     message: str
     status: str
+    timestamp: Optional[str] = None
 
 
 @dataclass(frozen=True)

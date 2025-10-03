@@ -39,6 +39,7 @@ def logs() -> Dict[str, Any]:
     except ValueError:
         abort(400, "limit must be numeric")
     log_entries = webhook_service.recent_logs(limit)
+    app.logger.info("Logs endpoint returning %d entries: %s", len(log_entries), log_entries)
     return {
         "logs": [
             {
@@ -46,10 +47,43 @@ def logs() -> Dict[str, Any]:
                 "input": log.input_phone,
                 "message": log.message,
                 "status": log.status,
+                "timestamp": log.timestamp,
             }
             for log in log_entries
         ]
     }
+
+
+@app.route("/debug/db", methods=["GET"])
+def dump_database() -> Dict[str, Any]:
+    webhooks = log_repository.fetch_all_webhooks()
+    answers = log_repository.fetch_all_answers()
+    return {
+        "webhooks": [
+            {
+                "wa_id": log.wa_id,
+                "input": log.input_phone,
+                "message": log.message,
+                "status": log.status,
+                "timestamp": log.timestamp,
+            }
+            for log in webhooks
+        ],
+        "answers": [
+            {
+                "wa_id": item.wa_id,
+                "answer": item.answer,
+            }
+            for item in answers
+        ],
+    }
+
+
+@app.route("/debug/db", methods=["DELETE"])
+def reset_database() -> Dict[str, str]:
+    log_repository.delete_all_data()
+    app.logger.warning("All log tables cleared via /debug/db")
+    return {"status": "cleared"}
 
 
 @app.route("/webhook", methods=["GET"])
@@ -66,7 +100,7 @@ def verify() -> Any:
 def webhook() -> Dict[str, Any]:
     payload = request.get_json(silent=True) or {}
     logs = webhook_service.process_webhook(payload)
-    app.logger.info("Logs endpoint returning %d entries: %s", len(payload), payload)
+    app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
     return {
         "received": len(logs),
         "logs": [
@@ -75,6 +109,7 @@ def webhook() -> Dict[str, Any]:
                 "input": log.input_phone,
                 "message": log.message,
                 "status": log.status,
+                "timestamp": log.timestamp,
             }
             for log in logs
         ],
