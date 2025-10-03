@@ -19,46 +19,41 @@
 \begin{document}
 \twocolumn[
   \begin{center}
-    {\fontsize{24}{28}\selectfont\textbf{Formato para Presentar Proyectos Modulares (INNI)}\par}\vspace{0.6ex}
-    {\fontsize{11}{13}\selectfont Nombre del líder del proyecto, nombre segundo participante, nombre tercer participante, nombre del asesor\par}\vspace{0.8ex}
+    {\fontsize{24}{28}\selectfont\textbf{EmotiTrack UDG (162/2025)}\par}\vspace{0.6ex}
+    {\fontsize{11}{13}\selectfont Herrera Ramírez Johan Osvaldo, Escalante Maldonado Diego, Alexander Garcia Gonzalez, Cesar López Montes de Oca\par}\vspace{0.8ex}
     {\fontsize{10}{12}\selectfont\itshape CENTRO UNIVERSITARIO DE CIENCIAS EXACTAS E INGENIERÍAS, (CUCEI, UDG)\par}\vspace{0.6ex}
     {\fontsize{9}{11}\selectfont\texttt{johan.herrera4994@alumnos.udg.mx}\par}\vspace{0.3ex}
-    {\fontsize{9}{11}\selectfont\texttt{segundo.autor@correo.dom\quad tercer.autor@correo.dom}\par}\vspace{0.3ex}
-    {\fontsize{9}{11}\selectfont\texttt{asesor@correo.dom}\par}\vspace{1.0ex}
+    {\fontsize{9}{11}\selectfont\texttt{diego.escalante0206@alumnos.udg.mx}\par}\vspace{0.3ex}
+    {\fontsize{9}{11}\selectfont\texttt{garciaalexander22@ibm.com}\par}\vspace{1.0ex}
+    {\fontsize{9}{11}\selectfont\texttt{cesar.lm@ibm.com}\par}\vspace{1.0ex}
     {\fontsize{9}{11}\selectfont\texttt{FIRMA DE VISTO BUENO DEL ASESOR}}\par
   \end{center}
   \vspace{1.5ex}
 ]
-\noindent\textbf{\textit{Abstract}}\textbf{---} Este documento es un ejemplo de formato basado en las normas de IEEE para presentar un proyecto modular terminado. Los autores deben seguir las instrucciones, incluyendo formato y tamaño de papel para mantener el estándar de aceptación. Este documento puede interpretarse como un set de instrucciones para presentar su proyecto modular o como una plantilla para hacerlo. Como habrá notado, esta primera sección es para generar un resumen muy corto y a alta escala del alcance del proyecto no deberá utilizar más de 150 palabras en este apartado.
+\noindent\textbf{\textit{Abstract}}\textbf{---} Este artículo presenta el desarrollo de EmotiTrack UDG, una aplicación modular diseñada para registrar, monitorear y analizar el estado emocional de estudiantes universitarios en el CUCEI. El sistema emplea cuestionarios breves basados en DASS-21 y análisis de datos para detectar niveles de estrés, ansiedad y depresión, permitiendo identificar patrones y cambios relevantes a lo largo del tiempo. La información recolectada se almacena de forma segura y se visualiza mediante informes y gráficos claros, facilitando la toma de decisiones institucionales orientadas a la prevención y el bienestar estudiantil. EmotiTrack integra prácticas de gestión ágil, arquitectura robusta y métodos de softcomputing para garantizar escalabilidad, seguridad y flexibilidad en el análisis. Los resultados buscan contribuir a la reducción de la deserción escolar y promover entornos académicos más saludables, con potencial de replicabilidad en otras instituciones educativas.
 
-\noindent\textbf{\textit{Palabras claves}}\textbf{ -- }Proyecto modular, formato de registro -- detalles de llenado.
+\noindent\textbf{\textit{Palabras clave}}\textbf{ -- }Bienestar emocional, estrés académico, DASS-21, análisis de datos, softcomputing, visualización, prevención, universidad, salud mental, modularidad.
 
 \section*{I. INTRODUCCIÓN}
-Este documento es una guía de formato o plantilla. La idea de esta sección es dar una introducción al proyecto modular realizado, de forma concisa y que permita al lector prepararse para los contenidos siguientes.
+El estrés académico afecta significativamente el bienestar y rendimiento de los estudiantes universitarios, siendo una causa frecuente de ansiedad, depresión y deserción en el CUCEI de la Universidad de Guadalajara. Aunque existen aplicaciones internacionales para monitorear el estado emocional, es necesario contar con soluciones adaptadas al contexto local.
 
-Debe describir el problema que se va a resolver y su contexto. Se describe a quien va dirigido, es decir el nicho del mercado o la población, la importancia de desarrollar el proyecto.
+EmotiTrack UDG es una aplicación modular diseñada para registrar, monitorear y analizar el estado emocional de los estudiantes del CUCEI mediante cuestionarios breves y análisis de datos. Su objetivo es detectar niveles de estrés y cambios emocionales, proporcionando información útil a las autoridades para la toma de decisiones preventivas. El proyecto busca mejorar el bienestar estudiantil, reducir la deserción y facilitar la adopción de la herramienta en otras instituciones educativas.
 
-Beneficios de crear el proyecto, el interés de resolverlo, beneficios, solución y los objetivos de la solución.
+\section*{II. Justificación del uso de DASS{-}21 frente a alternativas}
 
-\section*{II. TRABAJOS RELACIONADOS}
-A partir de esta sección, se desarrollan los contenidos del proyecto modular, de una forma ordenada y secuencial. Nótese que la sección debe ir organizada usando títulos como el anterior para cada tema nuevo incluido. Aparte, se incluyen subtítulos como el siguiente.
+\textbf{Resumen.} Para un bot de entrevista por WhatsApp con \emph{check-ins semanales}, el DASS{-}21 ofrece un balance óptimo entre \emph{brevedad operativa} y \emph{propiedades psicométricas} sólidas. La evidencia empírica muestra que el DASS{-}21 mantiene alta confiabilidad y validez de constructo, presenta una estructura factorial más “limpia” que el DASS{-}42 y permite la equivalencia práctica de puntajes al duplicar las puntuaciones crudas para comparabilidad con normas del instrumento completo~[1].
 
-\subsection*{A. Subtítulos}
-En esta sección se especifican temas detallados que forman parte de un título principal, como el de “Descripción del Desarrollo Del Proyecto Modular”.
+\subsubsection*{Validez y confiabilidad}
+El DASS{-}21 exhibe \textbf{elevadas consistencias internas} para Depresión, Ansiedad, Estrés y la escala Total, y \textbf{validez de constructo} respaldada por análisis factorial confirmatorio (AFC) en muestras amplias de población general. Asimismo, se han publicado \textbf{datos normativos específicos} para DASS{-}21 que facilitan la interpretación de resultados a nivel individual y grupal~[1].
 
-\subsection*{B. Especificación del formato del proyecto modular}
-El papel debe ser el correspondiente a una hoja carta estilo US, es decir 215.9 mm (8.5\,in) ancho y 279.4 mm (11\,in) largo.
+\subsubsection*{Comparación con DASS{-}42}
+Estudios que comparan directamente DASS{-}21 con DASS{-}42 reportan que la versión corta presenta una \textbf{estructura factorial más clara} y evita ítems problemáticos de la versión larga, sin sacrificar la diferenciación entre dimensiones de depresión, ansiedad y estrés~[1]. Además, \textbf{duplicar los puntajes crudos} de DASS{-}21 ofrece valores \emph{muy similares} a los del DASS{-}42, lo que habilita la continuidad con criterios y puntos de referencia previamente establecidos~[1].
 
-Los márgenes deben ser los siguientes:
-\begin{enumerate}[leftmargin=*,label=\arabic*.]
-  \item Superior = 19 mm (0.75\,in)
-  \item Inferior = 25.4 mm (1\,in)
-  \item Izquierdo -- Derecho = 17.3 mm (0.68\,in)
-\end{enumerate}
+\subsubsection*{Implicaciones para analítica y \emph{data mining}}
+Para \textbf{minería de datos} y análisis semanal (EDA, \emph{feature engineering}, \emph{clustering} y modelos interpretables) el DASS{-}21 reduce \textbf{carga de respuesta} y \textbf{fatiga del participante}, aumentando la probabilidad de \emph{adhesión} en contextos de mensajería móvil. La brevedad con adecuada fidelidad psicométrica facilita \textbf{series temporales semanales} de mayor completitud, mejora la \textbf{calidad de datos} para algoritmos (p.\,ej., K{-}Means/DBSCAN, CART) y favorece la detección de \emph{patrones} y \emph{hotspots} por materia/periodo académico.
 
-La hoja debe estar dividida en dos columnas, con un espacio de 4.22 mm (0.17\,in) entre columnas.
-
-Si requiere utilizar viñetas, refiérase a la lista de márgenes anterior para ver el estilo.
+\subsubsection*{Limitaciones y medidas de mitigación}
+El DASS{-}21 es un \textbf{tamizaje dimensional} y no un diagnóstico clínico. Se recomienda: (i) incluir mensajes de \emph{disclaimer} en el bot, (ii) vigilar \emph{drift} y \emph{missingness} en los datos semanales, y (iii) acompañar con rutas de derivación cuando se observen puntajes elevados persistentes. Estas prácticas preservan la \textbf{utilidad preventiva} y la \textbf{responsabilidad ética} del sistema.
 
 \section*{III. DESCRIPCIÓN DEL DESARROLLO DEL PROYECTO MODULAR}
 Todos los párrafos deben tener indentado o tabulaciones en la primera línea. También, todos los párrafos deben estar alineados de forma justificada y hacia la izquierda.
@@ -123,7 +118,7 @@ El nombre de la figura se utiliza centrado en la columna, o página si la figura
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.75\columnwidth]{img/image3.png}
+  \includegraphics[width=0.75\columnwidth]{../img/image3.png}
   \caption{El ejemplo de un gráfico con colores sólidos que resaltan sobre el fondo blanco.}
   \label{fig:solid-colors}
 \end{figure}
@@ -143,14 +138,14 @@ La Fig.~\ref{fig:low-res} muestra un caso donde la resolución no es adecuada, m
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.55\columnwidth]{img/image1.jpg}
+  \includegraphics[width=0.55\columnwidth]{../img/image1.jpg}
   \caption{Ejemplo de figura con baja resolución}
   \label{fig:low-res}
 \end{figure}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.53\columnwidth]{img/image2.jpg}
+  \includegraphics[width=0.53\columnwidth]{../img/image2.jpg}
   \caption{Ejemplo de figura con buena resolución}
   \label{fig:good-res}
 \end{figure}
@@ -197,14 +192,14 @@ Los ejemplos enumerados en la sección de referencias de este documento incluyen
   \item ejemplo de un estándar [12]
 \end{enumerate}
 
-\subsection*{Módulo \hl{Gestión de la tecnología de información}}
-\hl{Se describe brevemente la relación que existe de este módulo con el proyecto modular a presentar.}
+\subsection*{Módulo Gestión de la tecnología de información}
+Este módulo enmarca la \textbf{planificación, gobierno y operación} del proyecto modular. Define cómo se gestionan recursos, riesgos, calidad y seguridad para entregar valor con evidencia. En este proyecto se adopta \textbf{Scrum} (sprints, backlog, revisiones, DoD) con responsabilidades definidas: Johan (bot e integración) y Diego (analítica con Polars). Se gestionan \textbf{requisitos} para entrevistas \textbf{semanales} por WhatsApp basadas en DASS{-}21, \textbf{datos} (consentimiento, minimización, seudonimización, control de acceso y retención), \textbf{calidad y documentación} (reporte LaTeX, referencias IEEE, versionamiento, CI/CD), y \textbf{seguridad} (gestión de secretos, cifrado en tránsito y en reposo, RBAC). 
 
-\subsection*{Módulo \hl{Sistemas robustos, paralelos y distribuidos}}
-\hl{Se describe brevemente la relación que existe de este módulo con el proyecto modular a presentar.}
+\subsection*{Módulo Sistemas robustos, paralelos y distribuidos}
+Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de disponibilidad, escalabilidad y tolerancia a fallos. La solución integra \textbf{WhatsApp Business Cloud API} mediante webhooks, un servicio de orquestación para envío/recepción de mensajes, \textbf{colas de mensajes} para desacoplar e implementar reintentos/backoff, y \textbf{workers} paralelos para procesar respuestas y persistir en la base de datos. Se emplea \textbf{Docker} y despliegues en nube (p.\,ej., Azure/AWS), con estrategias blue/green o rolling. Los \textbf{jobs semanales} de analítica usan \textbf{Polars} (ejecución perezosa y paralela) para EDA y agregaciones. La robustez se refuerza con timeouts, circuit breakers, idempotencia y DLQ; la \textbf{observabilidad} con logging estructurado, métricas y trazas distribuidas (SLO: disponibilidad $\geq$ 99\%, p95 $<$ 1\,s en webhook). Se contemplan respaldos, restauración ensayada e infraestructura como código.
 
-\subsection*{Módulo \hl{Justificación de Cómputo Flexible (softcomputing)}}
-\hl{Se describe brevemente la relación que existe de este módulo con el proyecto modular a presentar.}
+\subsection*{Módulo Justificación de Cómputo Flexible (softcomputing)}
+El proyecto aplica \textbf{métodos flexibles} para manejar variabilidad y ruido en datos de bienestar emocional. Se utiliza \textbf{DASS{-}21} con cálculo estandarizado de subescalas (depresión, ansiedad, estrés) en cortes \textbf{semanales}, validando completitud y rangos. La \textbf{ingeniería de características} incorpora contexto académico (materias, semanas de parciales/entregas), patrones de respuesta y cambios abruptos. Para descubrir \textbf{patrones de riesgo y evolución} se emplean \textbf{clustering} (K{-}Means/DBSCAN) y modelos \textbf{interpretables} tipo \textbf{CART} para reglas y umbrales trazables. La validación incluye CV, análisis de drift e interpretabilidad, con salvaguardas éticas (no diagnóstico clínico, uso para prevención). Los hallazgos se comunican en \textbf{tableros} (Streamlit/Gradio) que muestran tendencias semanales, clusters y hotspots por materia/fecha para apoyar decisiones institucionales.
 
 \section*{IV. RESULTADOS OBTENIDOS DEL PROYECTO}
 El propósito de esta sección es resumir los principales resultados discutidos a lo largo del proyecto. Recuerde manejar las conclusiones como enunciados cortos fundamentados en la teoría y los objetivos planteados.
@@ -233,17 +228,7 @@ En esta sección se agregan agradecimientos a personas que colaboraron en el pro
 
 \section*{REFERENCIAS}
 \begin{thebibliography}{12}
-  \bibitem{meteveiko} S.~M. Metev and V.~P. Veiko, \textit{Laser Assisted Microtechnology}, 2nd~ed., R.~M. Osgood, Jr., Ed. Berlin, Germany: Springer-Verlag, 1998.
-  \bibitem{breckling} J.~Breckling, Ed., \textit{The Analysis of Directional Time Series: Applications to Wind Speed and Direction}, ser. Lecture Notes in Statistics. Berlin, Germany: Springer, 1989, vol.~61.
-  \bibitem{zhang} S.~Zhang, C.~Zhu, J.~K.~O. Sin, and P.~K.~T. Mok, “A novel ultrathin elevated channel low-temperature poly-Si TFT,” \textit{IEEE Electron Device Lett.}, vol.~20, pp.~569--571, Nov.~1999.
-  \bibitem{wegmuller} M.~Wegmuller, J.~P. von~der Weid, P.~Oberson, and N.~Gisin, “High resolution fiber distributed measurements with coherent OFDR,” in \textit{Proc. ECOC'00}, 2000, paper~11.3.4, p.~109.
-  \bibitem{patente} R.~E. Sorace, V.~S. Reinhardt, and S.~A. Vaughn, “High-speed digital-to-RF converter,” U.S. Patent~5\,668\,842, Sept.~16, 1997.
-  \bibitem{ieeeweb} (2002) The IEEE website. [Online]. Available: \url{http://www.ieee.org/}
-  \bibitem{shell} M.~Shell. (2002) IEEEtran homepage on CTAN. [Online]. Available: \url{http://www.ctan.org/texarchive/macros/latex/contrib/supported/IEEEtran/}
-  \bibitem{flexchip} \textit{FLEXChip Signal Processor (MC68175/D)}, Motorola, 1996.
-  \bibitem{pdca} “PDCA12-70 data sheet,” Opto Speed SA, Mezzovico, Switzerland.
-  \bibitem{karnik} A.~Karnik, “Performance of TCP congestion control with rate feedback: TCP/ABR and rate adaptive TCP/IP,” M.~Eng. thesis, Indian Institute of Science, Bangalore, India, Jan.~1999.
-  \bibitem{padhye} J.~Padhye, V.~Firoiu, and D.~Towsley, “A stochastic model of TCP Reno congestion avoidance and control,” Univ. of Massachusetts, Amherst, MA, CMPSCI Tech. Rep.~99-02, 1999.
-  \bibitem{ieee80211} \textit{Wireless LAN Medium Access Control (MAC) and Physical Layer (PHY) Specification}, IEEE Std.~802.11, 1997.
+  \bibitem{henrycrawford2005}
+  J.~D. Henry and J.~R. Crawford, ``The short-form version of the Depression Anxiety Stress Scales (DASS{-}21): Construct validity and normative data in a large non-clinical sample,'' \emph{British Journal of Clinical Psychology}, vol.~44, no.~2, pp.~227--239, Jun. 2005, doi: 10.1348/014466505X29657.
 \end{thebibliography}
 \end{document}

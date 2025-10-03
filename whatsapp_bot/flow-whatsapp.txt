@@ -1,0 +1,62 @@
+Flujo para bot de WhatsApp - DASS-21 + Preguntas del Projecto
+Mensaje de Presentación
+👋 ¡Hola! Somos parte de un proyecto universitario que busca conocer cómo se sienten los estudiantes durante el semestre. Tu apoyo es muy valioso 🙌.
+¿Te gustaría ayudarnos contestando una encuesta breve sobre emociones y estudios?
+👉 Solo responde Sí o No.
+Escala de Respuesta
+👉 Responde cada ítem con un número del 0 al 3:
+0️⃣ Nada en absoluto
+1️⃣ Un poco
+2️⃣ Bastante
+3️⃣ Casi siempre
+Cuestionario DASS-21
+1. ¿Te costó relajarte y desconectar después de estudiar o hacer tareas? 😵‍💫 Por ejemplo, terminas algo y tu mente sigue acelerada.
+
+2. ¿Notaste la boca seca por nervios o estrés? 😬 Como cuando sientes la garganta pegajosa antes de hablar en público.
+
+3. ¿Te resultó difícil sentirte feliz, incluso cuando pasaba algo bueno? 🌧️ Como no poder sonreír aunque haya motivo.
+
+4. ¿Tuviste dificultad para respirar sin hacer esfuerzo? 😮‍💨 Como sentir que falta el aire estando sentado.
+
+5. ¿Se te hizo pesado empezar actividades o tareas? 📚 Como querer estudiar pero no encontrar la energía para arrancar.
+
+6. ¿Reaccionaste de forma exagerada ante cosas pequeñas? 😡 Por ejemplo, molestarte mucho por un detalle mínimo.
+
+7. ¿Te temblaron partes del cuerpo por nervios? ✋ Como manos que no podías controlar antes de exponer.
+
+8. ¿Sentiste que gastabas demasiada energía nerviosa? ⚡ Como estar inquieto, moviéndote sin parar.
+
+9. ¿Te preocupaba hacer el ridículo en alguna situación? 😰 Por ejemplo, trabarse al hablar frente a tus compañeros.
+
+10. ¿Tuviste la sensación de que no había nada bueno por esperar? 🌑 Como levantarte sin ganas porque nada te ilusiona.
+
+11. ¿Te pusiste agitado o irritable con facilidad? 😤 Como perder la calma muy rápido.
+
+12. ¿Se te hizo difícil relajarte incluso cuando intentabas descansar? 🛏️ Como acostarte y seguir con la mente dando vueltas.
+
+13. ¿Te sentiste desanimado o bajoneado? 💔 Como tener un ánimo bajo que no se quita durante el día.
+
+14. ¿Te molestaba que interrumpieran lo que estabas haciendo? 📖 Como enojarte cuando alguien habla mientras estudias.
+
+15. ¿Tuviste la sensación de estar a punto de entrar en pánico? 🚨 Como si fueras a perder el control de golpe.
+
+16. ¿Te costó entusiasmarte con las cosas? 🎈 Lo que antes disfrutabas ya no te motivaba igual.
+
+17. ¿Pensaste que no valías mucho como persona? 🤕 Como sentirte insuficiente o poco capaz.
+
+18. ¿Estuviste más sensible o irritable de lo normal? ⚡ Que cualquier comentario te molestara más de lo debido.
+
+19. ¿Notaste tu corazón acelerado sin esfuerzo físico? ❤️‍🔥 Como si latiera fuerte o irregular estando tranquilo.
+
+20. ¿Sentiste miedo sin una razón clara? 👻 Como asustarte sin saber exactamente por qué.
+
+21. ¿Has pensado que la vida no tenía sentido? 🌫️ Como preguntarte “¿para qué hago esto?” sin hallar respuesta.
+________________
+Preguntas Extras (objetivo modular)
+   22. ¿Cuál dirías que es la materia más complicada o pesada de este semestre?
+
+   23. ¿Qué tipo de tareas o actividades de esa materia te generan más estrés (ejemplo: exámenes, proyectos, exposiciones)?
+
+   24. ¿En qué momento del semestre sientes más presión académica (inicio, mitad, finales, entrega de proyectos)?
+
+   25. Además de las materias, ¿qué otro factor de la universidad te genera más estrés (ejemplo: profesores, tiempos, equipo de trabajo)?
