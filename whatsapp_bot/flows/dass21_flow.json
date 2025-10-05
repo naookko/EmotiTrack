@@ -1,0 +1,999 @@
+{
+  "name": "dass21",
+  "version": 1,
+  "description": "Cuestionario DASS-21 mas preguntas extra del proyecto.",
+  "steps": [
+    {
+      "id": "question_01",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 1",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te costo relajarte y desconectarte despues de estudiar o hacer tareas?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q01",
+      "next": "question_02"
+    },
+    {
+      "id": "question_02",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 2",
+        "type": "text"
+      },
+      "body": {
+        "text": "Notaste la boca seca por nervios o estres?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q02",
+      "next": "question_03"
+    },
+    {
+      "id": "question_03",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 3",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te resulto dificil sentirte feliz aun cuando pasaba algo bueno?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q03",
+      "next": "question_04"
+    },
+    {
+      "id": "question_04",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 4",
+        "type": "text"
+      },
+      "body": {
+        "text": "Tuviste dificultad para respirar sin hacer esfuerzo?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q04",
+      "next": "question_05"
+    },
+    {
+      "id": "question_05",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 5",
+        "type": "text"
+      },
+      "body": {
+        "text": "Se te hizo pesado empezar actividades o tareas?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q05",
+      "next": "question_06"
+    },
+    {
+      "id": "question_06",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 6",
+        "type": "text"
+      },
+      "body": {
+        "text": "Reaccionaste de forma exagerada ante cosas pequenas?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q06",
+      "next": "question_07"
+    },
+    {
+      "id": "question_07",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 7",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te temblaron partes del cuerpo por nervios?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q07",
+      "next": "question_08"
+    },
+    {
+      "id": "question_08",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 8",
+        "type": "text"
+      },
+      "body": {
+        "text": "Sentiste que gastabas demasiada energia nerviosa?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q08",
+      "next": "question_09"
+    },
+    {
+      "id": "question_09",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 9",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te preocupaba hacer el ridiculo en alguna situacion?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q09",
+      "next": "question_10"
+    },
+    {
+      "id": "question_10",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 10",
+        "type": "text"
+      },
+      "body": {
+        "text": "Tuviste la sensacion de que no habia nada bueno por esperar?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q10",
+      "next": "question_11"
+    },
+    {
+      "id": "question_11",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 11",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te pusiste agitado o irritable con facilidad?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q11",
+      "next": "question_12"
+    },
+    {
+      "id": "question_12",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 12",
+        "type": "text"
+      },
+      "body": {
+        "text": "Se te hizo dificil relajarte incluso cuando intentabas descansar?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q12",
+      "next": "question_13"
+    },
+    {
+      "id": "question_13",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 13",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te sentiste desanimado o bajoneado?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q13",
+      "next": "question_14"
+    },
+    {
+      "id": "question_14",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 14",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te molestaba que interrumpieran lo que estabas haciendo?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q14",
+      "next": "question_15"
+    },
+    {
+      "id": "question_15",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 15",
+        "type": "text"
+      },
+      "body": {
+        "text": "Tuviste la sensacion de estar a punto de entrar en panico?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q15",
+      "next": "question_16"
+    },
+    {
+      "id": "question_16",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 16",
+        "type": "text"
+      },
+      "body": {
+        "text": "Te costo entusiasmarte con las cosas?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q16",
+      "next": "question_17"
+    },
+    {
+      "id": "question_17",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 17",
+        "type": "text"
+      },
+      "body": {
+        "text": "Pensaste que no valias mucho como persona?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q17",
+      "next": "question_18"
+    },
+    {
+      "id": "question_18",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 18",
+        "type": "text"
+      },
+      "body": {
+        "text": "Estuviste mas sensible o irritable de lo normal?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q18",
+      "next": "question_19"
+    },
+    {
+      "id": "question_19",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 19",
+        "type": "text"
+      },
+      "body": {
+        "text": "Notaste tu corazon acelerado sin esfuerzo fisico?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q19",
+      "next": "question_20"
+    },
+    {
+      "id": "question_20",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 20",
+        "type": "text"
+      },
+      "body": {
+        "text": "Sentiste miedo sin una razon clara?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q20",
+      "next": "question_21"
+    },
+    {
+      "id": "question_21",
+      "message_type": "interactive_list",
+      "header": {
+        "text": "DASS-21 Pregunta 21",
+        "type": "text"
+      },
+      "body": {
+        "text": "Pensaste que la vida no tenia sentido?"
+      },
+      "footer": {
+        "text": "Usa la escala de 0 (nada) a 3 (casi siempre)."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "rows": [
+            {
+              "title": "0 - Nada en absoluto",
+              "description": "No me ocurrio en la ultima semana.",
+              "id": "scale_0"
+            },
+            {
+              "title": "1 - Un poco",
+              "description": "Lo senti en algun momento.",
+              "id": "scale_1"
+            },
+            {
+              "title": "2 - Bastante",
+              "description": "Ocurrio con frecuencia.",
+              "id": "scale_2"
+            },
+            {
+              "title": "3 - Casi siempre",
+              "description": "Estuvo presente la mayor parte del tiempo.",
+              "id": "scale_3"
+            }
+          ],
+          "title": "Escala"
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "dass_q21",
+      "next": "extra_intro"
+    },
+    {
+      "id": "extra_intro",
+      "message_type": "text",
+      "message": "Gracias por tus respuestas. Ahora unas preguntas extra sobre tu experiencia academica.",
+      "expects_response": false,
+      "next": "extra_22"
+    },
+    {
+      "id": "extra_22",
+      "message_type": "text",
+      "message": "Cual es la materia mas complicada o pesada de este semestre?",
+      "expects_response": true,
+      "answer_key": "extra_q22",
+      "next": "extra_23"
+    },
+    {
+      "id": "extra_23",
+      "message_type": "text",
+      "message": "Que tipo de tareas de esa materia te generan mas estres?",
+      "expects_response": true,
+      "answer_key": "extra_q23",
+      "next": "extra_24"
+    },
+    {
+      "id": "extra_24",
+      "message_type": "text",
+      "message": "En que momento del semestre sientes mas presion academica?",
+      "expects_response": true,
+      "answer_key": "extra_q24",
+      "next": "extra_25"
+    },
+    {
+      "id": "extra_25",
+      "message_type": "text",
+      "message": "Ademas de las materias, que otro factor de la universidad te genera mas estres?",
+      "expects_response": true,
+      "answer_key": "extra_q25",
+      "next": "dass_complete"
+    },
+    {
+      "id": "dass_complete",
+      "message_type": "text",
+      "message": "Hemos registrado tus respuestas. Te avisaremos cuando llegue el siguiente ciclo de evaluacion.",
+      "expects_response": false,
+      "next": null,
+      "end": true
+    }
+  ]
+}

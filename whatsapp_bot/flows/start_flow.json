@@ -1,0 +1,136 @@
+{
+  "name": "start",
+  "version": 1,
+  "description": "Initial onboarding flow for new EmotiTrack participants.",
+  "steps": [
+    {
+      "id": "welcome_consent",
+      "message_type": "interactive_list",
+      "header": {
+        "type": "text",
+        "text": "Bienvenido a EmotiTrack"
+      },
+      "body": {
+        "text": "Hola, somos EmotiTrack. Usamos encuestas breves para conocer el bienestar emocional de estudiantes. Aceptas nuestro aviso de privacidad y participar en la evaluacion?"
+      },
+      "footer": {
+        "text": "Tu respuesta define si continuamos."
+      },
+      "button": "Responder",
+      "sections": [
+        {
+          "title": "Consentimiento",
+          "rows": [
+            {
+              "id": "consent_yes",
+              "title": "Si, deseo continuar",
+              "description": "Autorizo el uso de mis datos para la evaluacion."
+            },
+            {
+              "id": "consent_no",
+              "title": "No, gracias",
+              "description": "Prefiero no participar por ahora."
+            }
+          ]
+        }
+      ],
+      "expects_response": true,
+      "next": {
+        "consent_yes": "consent_granted_intro",
+        "consent_no": "consent_declined"
+      },
+      "answer_key": "consent"
+    },
+    {
+      "id": "consent_granted_intro",
+      "message_type": "text",
+      "message": "Gracias por aceptar. La informacion que compartas servira para acompanarte mejor durante el semestre.",
+      "expects_response": false,
+      "next": "ask_student_id"
+    },
+    {
+      "id": "ask_student_id",
+      "message_type": "text",
+      "message": "Para comenzar, cual es tu codigo de estudiante?",
+      "expects_response": true,
+      "answer_key": "student_id",
+      "next": "ask_age"
+    },
+    {
+      "id": "ask_age",
+      "message_type": "text",
+      "message": "Gracias. Ahora dime tu edad en anos.",
+      "expects_response": true,
+      "answer_key": "age",
+      "next": "ask_semester"
+    },
+    {
+      "id": "ask_semester",
+      "message_type": "interactive_list",
+      "header": {
+        "type": "text",
+        "text": "Semestre actual"
+      },
+      "body": {
+        "text": "Selecciona la opcion que mejor representa el semestre que cursas."
+      },
+      "footer": {
+        "text": "Si no aparece, elige la mas cercana."
+      },
+      "button": "Elegir semestre",
+      "sections": [
+        {
+          "title": "Opciones",
+          "rows": [
+            {
+              "id": "sem_1_3",
+              "title": "Semestres 1 a 3",
+              "description": "Estoy en los primeros semestres."
+            },
+            {
+              "id": "sem_4_6",
+              "title": "Semestres 4 a 6",
+              "description": "Mitad de la carrera."
+            },
+            {
+              "id": "sem_7_9",
+              "title": "Semestres 7 a 9",
+              "description": "Etapa avanzada."
+            },
+            {
+              "id": "sem_10_plus",
+              "title": "Semestre 10 o mas",
+              "description": "Cierre de la carrera."
+            }
+          ]
+        }
+      ],
+      "expects_response": true,
+      "answer_key": "semester_band",
+      "next": "ask_career"
+    },
+    {
+      "id": "ask_career",
+      "message_type": "text",
+      "message": "Por ultimo, escribe el nombre de tu carrera.",
+      "expects_response": true,
+      "answer_key": "career",
+      "next": "handoff_dass21"
+    },
+    {
+      "id": "handoff_dass21",
+      "message_type": "text",
+      "message": "Perfecto. Con esa informacion podemos iniciar la evaluacion DASS-21 cuando estes listo.",
+      "expects_response": false,
+      "next": null,
+      "end": true
+    },
+    {
+      "id": "consent_declined",
+      "message_type": "text",
+      "message": "Entendido. Si decides participar mas adelante, escribe de nuevo y retomaremos cuando estes listo.",
+      "expects_response": false,
+      "end": true
+    }
+  ]
+}

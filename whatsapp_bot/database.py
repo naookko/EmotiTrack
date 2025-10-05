@@ -23,6 +23,8 @@ class Database:
     @contextmanager
     def connection(self) -> Iterator[sqlite3.Connection]:
         conn = sqlite3.connect(self._path)
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.row_factory = sqlite3.Row
         try:
             yield conn
         finally:
@@ -47,6 +49,28 @@ class Database:
                     wa_id TEXT NOT NULL,
                     answer TEXT NOT NULL
                 )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS flow_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    wa_id TEXT NOT NULL,
+                    flow_name TEXT NOT NULL,
+                    step_index INTEGER NOT NULL DEFAULT 0,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    started_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    completed_at TEXT,
+                    context TEXT NOT NULL DEFAULT '{}',
+                    FOREIGN KEY (wa_id) REFERENCES log_webhook (wa_id)
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_flow_sessions_wa_flow
+                ON flow_sessions (wa_id, flow_name)
                 """
             )
             if not _column_exists(conn, "log_webhook", "timestamp"):

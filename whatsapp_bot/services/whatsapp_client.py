@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -46,6 +46,42 @@ class WhatsAppClient:
                 "action": {"buttons": action_buttons},
             },
         }
+        return self._post(payload)
+
+    def send_interactive_list(
+        self,
+        recipient: str,
+        *,
+        sections: List[Dict[str, Any]],
+        button: str,
+        header: Optional[Dict[str, Any]] = None,
+        body: Optional[Dict[str, Any]] = None,
+        footer: Optional[Dict[str, Any]] = None,
+        context_message_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        if not sections:
+            raise ValueError('List messages require at least one section')
+        interactive: Dict[str, Any] = {
+            'type': 'list',
+            'action': {
+                'button': button,
+                'sections': sections,
+            },
+        }
+        if header:
+            interactive['header'] = header
+        if body:
+            interactive['body'] = body
+        if footer:
+            interactive['footer'] = footer
+        payload: Dict[str, Any] = {
+            'messaging_product': 'whatsapp',
+            'to': recipient,
+            'type': 'interactive',
+            'interactive': interactive,
+        }
+        if context_message_id:
+            payload['context'] = {'message_id': context_message_id}
         return self._post(payload)
 
     def _post(self, payload: Dict[str, Any]) -> Dict[str, Any]:

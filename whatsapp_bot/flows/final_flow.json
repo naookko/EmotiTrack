@@ -1,0 +1,17 @@
+{
+  "name": "final",
+  "version": 1,
+  "description": "Mensaje de cierre cuando el ciclo de evaluacion continua vigente.",
+  "steps": [
+    {
+      "id": "final_notice",
+      "message_type": "text",
+      "message": "The next evaluations will be soon, {next_date}",
+      "expects_response": false,
+      "placeholders": [
+        "next_date"
+      ],
+      "end": true
+    }
+  ]
+}

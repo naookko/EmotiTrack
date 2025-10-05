@@ -10,6 +10,8 @@ from flask import Flask, abort, request
 from whatsapp_bot.config import Settings
 from whatsapp_bot.database import Database
 from whatsapp_bot.repositories.log_repository import LogRepository
+from whatsapp_bot.repositories.flow_repository import FlowRepository
+from whatsapp_bot.services.flow_engine import FlowEngine
 from whatsapp_bot.services.webhook_service import WebhookService
 from whatsapp_bot.services.whatsapp_client import WhatsAppClient
 
@@ -20,8 +22,10 @@ database = Database(settings.database_path)
 database.initialise()
 
 log_repository = LogRepository(database)
+flow_repository = FlowRepository(database)
 whatsapp_client = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id)
-webhook_service = WebhookService(log_repository, whatsapp_client)
+flow_engine = FlowEngine(flow_repository, log_repository, whatsapp_client)
+webhook_service = WebhookService(log_repository, flow_engine, settings.cycle_questionary_time)
 
 app = Flask(__name__)
 
@@ -100,7 +104,7 @@ def verify() -> Any:
 def webhook() -> Dict[str, Any]:
     payload = request.get_json(silent=True) or {}
     logs = webhook_service.process_webhook(payload)
-    app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
+    #app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
     return {
         "received": len(logs),
         "logs": [
