@@ -125,22 +125,40 @@ def register_student(data: StudentIn):
 
 @app.post("/responses")
 def save_response(data: ResponseIn):
+    # Generate a sequential questionnaire_id using MongoDB's count
+    questionnaire_id = str(responses.count_documents({}) + 1)
     response_id = f"resp_{datetime.utcnow().date()}_{data.student_id}"
     response = {
         "_id": response_id,
         "student_id": data.student_id,
-        "questionnaire_id": data.questionnaire_id,
+        "questionnaire_id": questionnaire_id,
         "response_date": datetime.utcnow(),
         "answer": data.answer,
         "created_at": datetime.utcnow(),
     }
     responses.insert_one(response)
 
-    clusters = run_kmeans(k=2)
+    return response
 
-    return {
-        "message": "Response registered successfully",
-        "response_id": response_id,
-        "analytics_updated": True,
-        "clusters": {c: [sid for sid, _ in members] for c, members in clusters.items()}
-    }
+@app.patch("/responses")
+def update_response(data: ResponseIn):
+    update_field = f"answer.{data.question_key}"
+    result = responses.update_one(
+        {
+            "questionnaire_id": data.questionnaire_id,
+        },
+        {
+            "$set": {
+                update_field: data.answer,
+                "updated_at": datetime.utcnow(),
+            }
+        },
+    )
+
+    if result.matched_count == 0:
+        return {
+            "message": "Response not found",
+            "analytics_updated": False,
+            "modified": False,
+        }
+
