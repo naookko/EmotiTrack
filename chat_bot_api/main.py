@@ -1,7 +1,7 @@
 import math
 import random
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 from datetime import datetime
@@ -24,15 +24,14 @@ app = FastAPI(title="Chat Bot API")
 class StudentIn(BaseModel):
     wha_id: str = Field(..., min_length=1)
     consent_accepted: bool
-    age: int
-    semester: str
-    career: str
-
+    age: int | None = None
+    semester: str | None = None
+    career: str | None = None
 
 class ResponseIn(BaseModel):
     wha_id: str
     questionnaire_id: str
-    answer: list[dict]
+    answer: dict
 
 
 class ScoresIn(BaseModel):
@@ -54,6 +53,12 @@ class LogIn(BaseModel):
     wha_id: str
     log_type: str
     message: str
+
+
+class ResponsePatch(BaseModel):
+    wha_id: str
+    questionnaire_id: str
+    updates: dict
 
 
 #K-Means implementations
@@ -112,8 +117,9 @@ def run_kmeans(k: int = 2, max_iterations: int = 10):
 #Endpoints
 @app.post("/students")
 def register_student(data: StudentIn):
+    # Generate a sequential questionnaire_id
+    questionnaire_id = str(responses.count_documents({}) + 1)
     student = {
-        "_id": data.wha_id,
         "wha_id": data.wha_id,
         "consent_accepted": data.consent_accepted,
         "age": data.age,
@@ -122,45 +128,69 @@ def register_student(data: StudentIn):
         "created_at": datetime.utcnow(),
     }
     students.insert_one(student)
-    return {"message": "Student registered successfully", "wha_id": data.wha_id}
-
-
-@app.post("/responses")
-def save_response(data: ResponseIn):
-    # Generate a sequential questionnaire_id using MongoDB's count
-    questionnaire_id = str(responses.count_documents({}) + 1)
-    response_id = f"resp_{datetime.utcnow().date()}_{data.wha_id}"
+    # Create initial chat response with null values
     response = {
-        "_id": response_id,
         "wha_id": data.wha_id,
         "questionnaire_id": questionnaire_id,
+        "answer": {},  # Empty dictionary for answers
         "response_date": datetime.utcnow(),
-        "answer": data.answer,
         "created_at": datetime.utcnow(),
     }
     responses.insert_one(response)
+    return {"message": "Student registered successfully", "wha_id": data.wha_id}
 
-    return response
-
-@app.patch("/responses")
-def update_response(data: ResponseIn):
-    update_field = f"answer.{data.question_key}"
-    result = responses.update_one(
-        {
-            "questionnaire_id": data.questionnaire_id,
-        },
-        {
-            "$set": {
-                update_field: data.answer,
-                "updated_at": datetime.utcnow(),
-            }
-        },
+@app.patch("/students")
+def update_student(data: StudentIn):
+    # Remove wha_id from the fields to update to prevent editing
+    update_fields = {
+        "consent_accepted": data.consent_accepted,
+        "age": data.age,
+        "semester": data.semester,
+        "career": data.career,
+        "updated_at": datetime.utcnow(),
+    }
+    result = students.update_one(
+        {"wha_id": data.wha_id},
+        {"$set": update_fields},
     )
-
     if result.matched_count == 0:
-        return {
-            "message": "Response not found",
-            "analytics_updated": False,
-            "modified": False,
-        }
+        return {"message": "Student not found", "modified": False}
+    return {"message": "Student updated successfully", "modified": True, "wha_id": data.wha_id}
 
+@app.get("/students/{wha_id}")
+def get_student(wha_id: str):
+    student = students.find_one({"wha_id": wha_id}, {"_id": 0})
+    if not student:
+        return {"message": "Student not found"}
+    return student
+# All responses for a student
+@app.get("/responses/{wha_id}")
+def get_responses(wha_id: str):
+    user_responses = list(responses.find({"wha_id": wha_id}, {"_id": 0}))
+    if not user_responses:
+        return {"message": "No responses found for this student"}
+    return {"responses": user_responses}
+
+# Specific questionnaire response
+@app.get("/responses/{wha_id}/{questionnaire_id}")
+def get_responses(wha_id: str, questionnaire_id: str):
+    user_response = responses.find_one({"wha_id": wha_id, "questionnaire_id": questionnaire_id}, {"_id": 0})
+    if not user_response:
+        return {"message": "No response found for this student and questionnaire"}
+    return {"response": user_response}
+
+@app.patch("/responses/{wha_id}/{questionnaire_id}")
+def update_response(wha_id: str, questionnaire_id: str, updates: dict = Body(...)):
+    response = responses.find_one({"wha_id": wha_id, "questionnaire_id": questionnaire_id})
+    if not response:
+        return {"message": "Response not found", "modified": False}
+    answer = response.get("answer", {})
+    answer.update(updates)
+    responses.update_one(
+        {"wha_id": wha_id, "questionnaire_id": questionnaire_id},
+        {"$set": {"answer": answer, "updated_at": datetime.utcnow()}}
+    )
+    return {"message": "Response updated", "modified": True, "answer": answer}
+
+# After defining students collection
+students.create_index("wha_id", unique=True)

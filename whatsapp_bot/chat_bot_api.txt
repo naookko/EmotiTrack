@@ -1,0 +1,87 @@
+POST /students
+Body:
+{
+  "wha_id": "{{wha_id}}",
+  "consent_accepted": true,
+  "age": {{age}},
+  "semester": "{{semester}}",
+  "career": "{{career}}"
+}
+Response:
+{
+  "message": "Student registered successfully",
+  "wha_id": "{{wha_id}}"
+}
+
+PATCH /students
+Body:
+{
+  "wha_id": "{{wha_id}}",
+  "consent_accepted": false,
+  "age": {{age}},
+  "semester": "{{semester}}",
+  "career": "{{career}}"
+}
+Response:
+{
+  "message": "Student updated successfully",
+  "modified": true,
+  "wha_id": "{{wha_id}}"
+}
+
+GET /students/{{wha_id}}
+Response:
+{
+  "wha_id": "{{wha_id}}",
+  "consent_accepted": true,
+  "age": {{age}},
+  "semester": "{{semester}}",
+  "career": "{{career}}",
+  "created_at": "{{created_at}}"
+}
+
+GET /responses/{{wha_id}}
+Response:
+{
+  "responses": [
+    {
+      "wha_id": "{{wha_id}}",
+      "questionnaire_id": "{{questionnaire_id}}",
+      "answer": {},
+      "response_date": "{{response_date}}",
+      "created_at": "{{created_at}}"
+    }
+    // ...more responses
+  ]
+}
+
+GET /responses/{{wha_id}}/{{questionnaire_id}}
+Response:
+{
+  "response": {
+    "wha_id": "{{wha_id}}",
+    "questionnaire_id": "{{questionnaire_id}}",
+    "answer": {
+      // "question1": "answer1",
+      // "question2": "answer2"
+    },
+    "response_date": "{{response_date}}",
+    "created_at": "{{created_at}}"
+  }
+}
+
+PATCH /responses/{{wha_id}}/{{questionnaire_id}}
+Body:
+{
+  "question1": "answer1",
+  "question2": "answer2"
+}
+Response:
+{
+  "message": "Response updated",
+  "modified": true,
+  "answer": {
+    "question1": "answer1",
+    "question2": "answer2"
+  }
+}
