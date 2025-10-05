@@ -1,201 +1,119 @@
-"""Persistence helpers for flow session management."""
+
+"""In-memory persistence helpers for flow session management."""
 
 from __future__ import annotations
 
-import json
 from dataclasses import replace
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-from ..database import Database
 from ..models import FlowSession
 
 
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
-
-
-def _isoformat(dt: Optional[datetime] = None) -> str:
-    value = dt or _utcnow()
-    return value.replace(microsecond=0).isoformat()
-
-
-def _row_to_session(row: Any) -> FlowSession:
-    context_raw = row[8] if row[8] is not None else "{}"
-    context = json.loads(context_raw)
-    return FlowSession(
-        id=row[0],
-        wa_id=row[1],
-        flow_name=row[2],
-        step_index=row[3],
-        is_active=bool(row[4]),
-        started_at=row[5],
-        updated_at=row[6],
-        completed_at=row[7],
-        context=context,
-    )
+def _utcnow_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 class FlowRepository:
-    """Provides CRUD operations over flow_sessions."""
+    """Stores flow sessions in memory instead of SQLite."""
 
-    def __init__(self, database: Database) -> None:
-        self._db = database
+    def __init__(self) -> None:
+        self._sessions: Dict[int, FlowSession] = {}
+        self._next_id = 1
+
+    def _new_id(self) -> int:
+        session_id = self._next_id
+        self._next_id += 1
+        return session_id
+
+    def _sessions_for(self, wa_id: str) -> List[FlowSession]:
+        return [session for session in self._sessions.values() if session.wa_id == wa_id]
 
     def create_session(
         self,
         wa_id: str,
         flow_name: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: Optional[Dict] = None,
+        *,
+        step_index: int = 0,
     ) -> FlowSession:
-        now = _isoformat()
-        context_json = json.dumps(context or {})
-        with self._db.connection() as conn:
-            cursor = conn.execute(
-                """
-                INSERT INTO flow_sessions (
-                    wa_id, flow_name, step_index, is_active, started_at, updated_at, context
-                )
-                VALUES (?, ?, 0, 1, ?, ?, ?)
-                """,
-                (wa_id, flow_name, now, now, context_json),
-            )
-            session_id = cursor.lastrowid
-            conn.commit()
-            row = conn.execute(
-                """
-                SELECT id, wa_id, flow_name, step_index, is_active, started_at, updated_at, completed_at, context
-                FROM flow_sessions
-                WHERE id = ?
-                """,
-                (session_id,),
-            ).fetchone()
-        return _row_to_session(row)
+        session_id = self._new_id()
+        now = _utcnow_iso()
+        session = FlowSession(
+            id=session_id,
+            wa_id=wa_id,
+            flow_name=flow_name,
+            step_index=step_index,
+            is_active=True,
+            started_at=now,
+            updated_at=now,
+            completed_at=None,
+            context=dict(context or {}),
+        )
+        self._sessions[session_id] = session
+        return session
 
     def get_active_session(self, wa_id: str) -> Optional[FlowSession]:
-        with self._db.connection() as conn:
-            row = conn.execute(
-                """
-                SELECT id, wa_id, flow_name, step_index, is_active, started_at, updated_at, completed_at, context
-                FROM flow_sessions
-                WHERE wa_id = ? AND is_active = 1
-                ORDER BY updated_at DESC
-                LIMIT 1
-                """,
-                (wa_id,),
-            ).fetchone()
-        return _row_to_session(row) if row else None
+        active = [s for s in self._sessions_for(wa_id) if s.is_active]
+        active.sort(key=lambda s: s.updated_at, reverse=True)
+        return active[0] if active else None
 
     def get_active_session_by_flow(self, wa_id: str, flow_name: str) -> Optional[FlowSession]:
-        with self._db.connection() as conn:
-            row = conn.execute(
-                """
-                SELECT id, wa_id, flow_name, step_index, is_active, started_at, updated_at, completed_at, context
-                FROM flow_sessions
-                WHERE wa_id = ? AND flow_name = ? AND is_active = 1
-                ORDER BY updated_at DESC
-                LIMIT 1
-                """,
-                (wa_id, flow_name),
-            ).fetchone()
-        return _row_to_session(row) if row else None
+        active = [
+            s for s in self._sessions_for(wa_id)
+            if s.flow_name == flow_name and s.is_active
+        ]
+        active.sort(key=lambda s: s.updated_at, reverse=True)
+        return active[0] if active else None
 
     def get_latest_session(self, wa_id: str, flow_name: str) -> Optional[FlowSession]:
-        with self._db.connection() as conn:
-            row = conn.execute(
-                """
-                SELECT id, wa_id, flow_name, step_index, is_active, started_at, updated_at, completed_at, context
-                FROM flow_sessions
-                WHERE wa_id = ? AND flow_name = ?
-                ORDER BY started_at DESC
-                LIMIT 1
-                """,
-                (wa_id, flow_name),
-            ).fetchone()
-        return _row_to_session(row) if row else None
+        sessions = [
+            s for s in self._sessions_for(wa_id)
+            if s.flow_name == flow_name
+        ]
+        sessions.sort(key=lambda s: s.started_at, reverse=True)
+        return sessions[0] if sessions else None
 
     def save_progress(
         self,
         session: FlowSession,
         *,
         step_index: Optional[int] = None,
-        context: Optional[Dict[str, Any]] = None,
+        context: Optional[Dict] = None,
         is_active: Optional[bool] = None,
         completed: Optional[bool] = None,
     ) -> FlowSession:
-        new_step = step_index if step_index is not None else session.step_index
-        new_context = context if context is not None else session.context
+        updated_at = _utcnow_iso()
+        new_context = dict(session.context) if context is None else dict(context)
         active_flag = session.is_active if is_active is None else is_active
-        updated_at = _isoformat()
         completed_at: Optional[str]
-        if completed is True:
+        if completed:
             completed_at = updated_at
             active_flag = False
         elif completed is False:
             completed_at = None
         else:
             completed_at = session.completed_at
-        with self._db.connection() as conn:
-            conn.execute(
-                """
-                UPDATE flow_sessions
-                SET step_index = ?,
-                    is_active = ?,
-                    updated_at = ?,
-                    completed_at = ?,
-                    context = ?
-                WHERE id = ?
-                """,
-                (
-                    new_step,
-                    1 if active_flag else 0,
-                    updated_at,
-                    completed_at,
-                    json.dumps(new_context),
-                    session.id,
-                ),
-            )
-            conn.commit()
-        return replace(
+        new_session = replace(
             session,
-            step_index=new_step,
+            step_index=session.step_index if step_index is None else step_index,
             is_active=active_flag,
             updated_at=updated_at,
             completed_at=completed_at,
             context=new_context,
         )
+        self._sessions[new_session.id] = new_session
+        return new_session
 
     def deactivate_flow(self, wa_id: str, flow_name: str) -> None:
-        timestamp = _isoformat()
-        with self._db.connection() as conn:
-            conn.execute(
-                """
-                UPDATE flow_sessions
-                SET is_active = 0,
-                    updated_at = ?,
-                    completed_at = COALESCE(completed_at, ?)
-                WHERE wa_id = ? AND flow_name = ? AND is_active = 1
-                """,
-                (timestamp, timestamp, wa_id, flow_name),
-            )
-            conn.commit()
+        for session in self._sessions_for(wa_id):
+            if session.flow_name != flow_name or not session.is_active:
+                continue
+            self.save_progress(session, is_active=False, completed=None)
 
     def list_active_flows(self, wa_id: str) -> List[FlowSession]:
-        with self._db.connection() as conn:
-            rows = conn.execute(
-                """
-                SELECT id, wa_id, flow_name, step_index, is_active, started_at, updated_at, completed_at, context
-                FROM flow_sessions
-                WHERE wa_id = ? AND is_active = 1
-                ORDER BY updated_at DESC
-                """,
-                (wa_id,),
-            ).fetchall()
-        return [_row_to_session(row) for row in rows]
+        return [s for s in self._sessions_for(wa_id) if s.is_active]
 
     def delete_all_sessions(self) -> None:
-        """Remove every flow session row."""
-        with self._db.connection() as conn:
-            conn.execute("DELETE FROM flow_sessions")
-            conn.commit()
-
+        self._sessions.clear()
+        self._next_id = 1

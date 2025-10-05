@@ -1,13 +1,15 @@
+
 """Service layer that handles webhook events."""
 
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..models import FlowSession, WebhookLog
 from ..repositories.log_repository import LogRepository
+from .chat_bot_api_client import ChatBotApiClient
 from .flow_engine import FlowEngine, FlowResponse
 
 LOGGER = logging.getLogger(__name__)
@@ -19,19 +21,18 @@ class WebhookService:
     DEFAULT_WA_ID = "5213325204729"
     START_FLOW = "start"
     DASS_FLOW = "dass21"
-    FINAL_FLOW = "final"
 
     def __init__(
         self,
         repository: LogRepository,
         flow_engine: FlowEngine,
-        cycle_duration: Optional[timedelta],
+        chat_api: ChatBotApiClient,
     ) -> None:
         self._repository = repository
         self._flow_engine = flow_engine
-        self._cycle_duration = cycle_duration
+        self._chat_api = chat_api
 
-    def process_webhook(self, payload: Dict) -> List[WebhookLog]:
+    def process_webhook(self, payload: Dict[str, Any]) -> List[WebhookLog]:
         logs: List[WebhookLog] = []
         message_events = [
             ("message", change.get("value", {}), message)
@@ -50,34 +51,116 @@ class WebhookService:
             result = self._log_event(event_type, value, item)
             if not result:
                 continue
-            log_entry, is_new = result
+            log_entry, student = result
             logs.append(log_entry)
             if event_type == "message":
-                self._handle_message_event(log_entry, item, is_new)
+                self._handle_message_event(log_entry, item, student)
         return logs
 
     def recent_logs(self, limit: int = 20) -> List[WebhookLog]:
         return self._repository.fetch_recent_webhooks(limit)
 
-    def _handle_message_event(self, log_entry: WebhookLog, item: Dict[str, Any], is_new: bool) -> None:
+    def _handle_message_event(
+        self,
+        log_entry: WebhookLog,
+        item: Dict[str, Any],
+        student: Optional[Dict[str, Any]],
+    ) -> None:
         wa_id = log_entry.wa_id
-        if is_new:
-            LOGGER.info("Starting onboarding flow for new wa_id=%s", wa_id)
+        if student is None:
+            try:
+                self._chat_api.create_student(wa_id)
+                LOGGER.info("Registered new student for wa_id=%s", wa_id)
+            except Exception:
+                LOGGER.exception("Failed to create student for wa_id=%s", wa_id)
+                return
             self._flow_engine.ensure_session(self.START_FLOW, wa_id)
             return
-        if self._cycle_duration and self._ensure_cycle_state(wa_id):
-            LOGGER.info("Cycle expired for wa_id=%s; restarted DASS-21 flow", wa_id)
-            return
+
         response = self._parse_flow_response(item)
         if not response:
             LOGGER.debug("Ignoring message without actionable content for wa_id=%s", wa_id)
             return
+
         session = self._resolve_session_for_response(wa_id)
         if not session:
-            LOGGER.info("No active flow awaiting response for %s; restarting onboarding flow", wa_id)
-            session = self._flow_engine.ensure_session(self.START_FLOW, wa_id)
+            session = self._ensure_default_session(wa_id, student)
+            if not session:
+                LOGGER.debug("No session available to handle response for wa_id=%s", wa_id)
+                return
+
         updated_session = self._flow_engine.handle_response(session, response)
         self._after_progress(updated_session)
+
+    def _ensure_default_session(
+        self,
+        wa_id: str,
+        student: Dict[str, Any],
+    ) -> Optional[FlowSession]:
+        consent = bool(student.get("consent_accepted"))
+        if not consent:
+            LOGGER.info("Ensuring start flow for wa_id=%s", wa_id)
+            return self._flow_engine.ensure_session(self.START_FLOW, wa_id)
+        LOGGER.info("Ensuring questionnaire flow for wa_id=%s", wa_id)
+        return self._ensure_questionnaire_session(wa_id)
+
+    def _ensure_questionnaire_session(self, wa_id: str) -> Optional[FlowSession]:
+        try:
+            latest = self._chat_api.latest_questionnaire(wa_id)
+        except Exception:
+            LOGGER.exception("Failed to fetch questionnaire for wa_id=%s", wa_id)
+            return None
+        if not latest:
+            LOGGER.warning("No questionnaire found for wa_id=%s", wa_id)
+            return None
+        answers = latest.get("answer") or {}
+        questionnaire_id = latest.get("questionnaire_id")
+        if questionnaire_id is None:
+            LOGGER.warning("Questionnaire lacks identifier for wa_id=%s", wa_id)
+            return None
+        next_step_id = self._next_question_step(answers)
+        if not next_step_id:
+            LOGGER.info("Questionnaire already complete for wa_id=%s", wa_id)
+            return None
+        last_index = self._last_answered_step_index(answers)
+        context_overrides = {
+            self._flow_engine.ANSWERS_KEY: answers,
+            self._flow_engine.CURRENT_STEP_KEY: self._last_answered_step_id(answers),
+        }
+        variables = {"questionnaire_id": questionnaire_id}
+        return self._flow_engine.ensure_session(
+            self.DASS_FLOW,
+            wa_id,
+            initial_variables=variables,
+            context_overrides=context_overrides,
+            start_from_step=next_step_id,
+            initial_step_index=max(last_index, 0),
+        )
+
+    def _next_question_step(self, answers: Dict[str, Any]) -> Optional[str]:
+        steps = self._flow_engine.flow_steps(self.DASS_FLOW)
+        for step in steps:
+            if not step.expects_response or not step.answer_key:
+                continue
+            if not answers.get(step.answer_key):
+                return step.id
+        return None
+
+    def _last_answered_step_index(self, answers: Dict[str, Any]) -> int:
+        steps = self._flow_engine.flow_steps(self.DASS_FLOW)
+        answered_keys = {key for key, value in answers.items() if value}
+        last_index = -1
+        for idx, step in enumerate(steps):
+            if step.answer_key and step.answer_key in answered_keys:
+                last_index = idx
+        return last_index
+
+    def _last_answered_step_id(self, answers: Dict[str, Any]) -> Optional[str]:
+        steps = self._flow_engine.flow_steps(self.DASS_FLOW)
+        for step in reversed(steps):
+            if step.answer_key and answers.get(step.answer_key):
+                return step.id
+        return None
 
     def _resolve_session_for_response(self, wa_id: str) -> Optional[FlowSession]:
         for flow_name in (self.START_FLOW, self.DASS_FLOW):
@@ -93,56 +176,45 @@ class WebhookService:
         return self._flow_engine.active_session(self.DASS_FLOW, wa_id)
 
     def _after_progress(self, session: FlowSession) -> None:
-        if session.flow_name == self.START_FLOW:
-            if session.is_active:
-                return
+        if session.flow_name == self.START_FLOW and not session.is_active:
             answers = session.context.get(self._flow_engine.ANSWERS_KEY, {})
             consent = (answers.get("consent") or {}).get("value")
             if consent == "consent_yes":
-                self._start_dass_flow(session.wa_id)
+                self._ensure_questionnaire_session(session.wa_id)
             return
-        if session.flow_name == self.DASS_FLOW:
-            if session.is_active:
-                return
-            self._start_final_flow(session)
+        if session.flow_name == self.DASS_FLOW and not session.is_active:
+            LOGGER.info("Completed questionnaire flow for wa_id=%s", session.wa_id)
 
-    def _start_dass_flow(self, wa_id: str) -> None:
-        active = self._flow_engine.active_session(self.DASS_FLOW, wa_id)
-        if active:
-            return
-        latest = self._flow_engine.latest_session(self.DASS_FLOW, wa_id)
-        if latest and not latest.is_active and self._cycle_duration:
-            started_at = self._parse_timestamp_value(latest.started_at)
-            if started_at and datetime.now(timezone.utc) - started_at < self._cycle_duration:
-                LOGGER.info("Cycle still active for wa_id=%s; skipping new DASS-21 run", wa_id)
-                return
-        self._flow_engine.ensure_session(self.DASS_FLOW, wa_id)
+    def _log_event(
+        self,
+        event_type: str,
+        value: Dict[str, Any],
+        item: Dict[str, Any],
+    ) -> Optional[Tuple[WebhookLog, Optional[Dict[str, Any]]]]:
+        wa_id = self._resolve_wa_id(event_type, item)
+        if not wa_id:
+            LOGGER.warning("Could not resolve wa_id for event %s; using default", event_type)
+            wa_id = self.DEFAULT_WA_ID
+        student: Optional[Dict[str, Any]] = None
+        try:
+            student = self._chat_api.get_student(wa_id)
+        except Exception:
+            LOGGER.exception("Failed to consult student with wa_id=%s", wa_id)
+        input_phone = value.get("metadata", {}).get("display_phone_number") or value.get("metadata", {}).get("phone_number_id", "")
+        message_text = self._extract_message_text(event_type, item)
+        status_text = self._extract_status_text(event_type, item)
+        timestamp = self._extract_timestamp(item)
 
-    def _start_final_flow(self, dass_session: FlowSession) -> None:
-        if not self._cycle_duration:
-            return
-        started_at = self._parse_timestamp_value(dass_session.started_at)
-        if not started_at:
-            return
-        next_date = started_at + self._cycle_duration
-        variables = {"next_date": self._format_datetime(next_date)}
-        self._flow_engine.ensure_session(self.FINAL_FLOW, dass_session.wa_id, variables)
-
-    def _ensure_cycle_state(self, wa_id: str) -> bool:
-        active = self._flow_engine.active_session(self.DASS_FLOW, wa_id)
-        target = active or self._flow_engine.latest_session(self.DASS_FLOW, wa_id)
-        if not target or not self._cycle_duration:
-            return False
-        started_at = self._parse_timestamp_value(target.started_at)
-        if not started_at:
-            return False
-        if datetime.now(timezone.utc) - started_at < self._cycle_duration:
-            return False
-        LOGGER.info("Resetting DASS-21 flow for wa_id=%s due to elapsed cycle", wa_id)
-        self._flow_engine.deactivate(self.DASS_FLOW, wa_id)
-        self._flow_engine.deactivate(self.FINAL_FLOW, wa_id)
-        self._flow_engine.ensure_session(self.DASS_FLOW, wa_id)
-        return True
+        log_entry = WebhookLog(
+            wa_id=wa_id,
+            input_phone=input_phone,
+            message=message_text,
+            status=status_text,
+            timestamp=timestamp,
+        )
+        self._repository.save_webhook_log(log_entry)
+        LOGGER.info("Logged %s event for %s", event_type, wa_id)
+        return log_entry, student
 
     def _parse_flow_response(self, message: Dict[str, Any]) -> Optional[FlowResponse]:
         message_type = message.get("type")
@@ -178,36 +250,14 @@ class WebhookService:
             )
         return None
 
-    def _log_event(self, event_type: str, value: Dict, item: Dict) -> Optional[Tuple[WebhookLog, bool]]:
-        wa_id = self._resolve_wa_id(event_type, item)
-        if not wa_id:
-            LOGGER.warning("Could not resolve wa_id for event %s; using default", event_type)
-            wa_id = self.DEFAULT_WA_ID
-        is_new = not self._repository.conversation_exists(wa_id)
-        input_phone = value.get("metadata", {}).get("display_phone_number") or value.get("metadata", {}).get("phone_number_id", "")
-        message_text = self._extract_message_text(event_type, item)
-        status_text = self._extract_status_text(event_type, item)
-        timestamp = self._extract_timestamp(item)
-
-        log_entry = WebhookLog(
-            wa_id=wa_id,
-            input_phone=input_phone,
-            message=message_text,
-            status=status_text,
-            timestamp=timestamp,
-        )
-        self._repository.save_webhook_log(log_entry)
-        LOGGER.info("Logged %s event for %s", event_type, wa_id)
-        return log_entry, is_new
-
-    def _resolve_wa_id(self, event_type: str, item: Dict) -> Optional[str]:
+    def _resolve_wa_id(self, event_type: str, item: Dict[str, Any]) -> Optional[str]:
         if event_type == "message":
             return item.get("from")
         if event_type == "status":
             return item.get("recipient_id")
         return None
 
-    def _extract_message_text(self, event_type: str, item: Dict) -> str:
+    def _extract_message_text(self, event_type: str, item: Dict[str, Any]) -> str:
         if event_type == "message":
             message_type = item.get("type", "")
             if message_type == "text":
@@ -226,12 +276,12 @@ class WebhookService:
         status_value = item.get("status", "")
         return f"status:{status_value}" if status_value else "status"
 
-    def _extract_status_text(self, event_type: str, item: Dict) -> str:
+    def _extract_status_text(self, event_type: str, item: Dict[str, Any]) -> str:
         if event_type == "message":
             return item.get("type", "message")
         return item.get("status", "status")
 
-    def _extract_timestamp(self, item: Dict) -> Optional[str]:
+    def _extract_timestamp(self, item: Dict[str, Any]) -> Optional[str]:
         timestamp = item.get("timestamp")
         if timestamp is None:
             return None
@@ -245,17 +295,3 @@ class WebhookService:
             return datetime.fromtimestamp(int(timestamp), tz=timezone.utc).replace(microsecond=0).isoformat()
         except (TypeError, ValueError):
             return str(timestamp)
-
-    @staticmethod
-    def _parse_timestamp_value(raw: Optional[str]) -> Optional[datetime]:
-        if not raw:
-            return None
-        try:
-            return datetime.fromisoformat(raw)
-        except ValueError:
-            return None
-
-    @staticmethod
-    def _format_datetime(dt_value: datetime) -> str:
-        local_dt = dt_value.astimezone(timezone.utc)
-        return local_dt.strftime("%Y-%m-%d %H:%M UTC")

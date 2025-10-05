@@ -1,3 +1,4 @@
+
 """Flask application entry point for the WhatsApp bot."""
 
 from __future__ import annotations
@@ -8,24 +9,66 @@ from typing import Any, Dict
 from flask import Flask, abort, request
 
 from whatsapp_bot.config import Settings
-from whatsapp_bot.database import Database
 from whatsapp_bot.repositories.log_repository import LogRepository
 from whatsapp_bot.repositories.flow_repository import FlowRepository
+from whatsapp_bot.services.chat_bot_api_client import ChatBotApiClient
 from whatsapp_bot.services.flow_engine import FlowEngine
 from whatsapp_bot.services.webhook_service import WebhookService
 from whatsapp_bot.services.whatsapp_client import WhatsAppClient
 
 logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 settings = Settings.from_env()
-database = Database(settings.database_path)
-database.initialise()
 
-log_repository = LogRepository(database)
-flow_repository = FlowRepository(database)
+log_repository = LogRepository()
+flow_repository = FlowRepository()
 whatsapp_client = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id)
-flow_engine = FlowEngine(flow_repository, log_repository, whatsapp_client)
-webhook_service = WebhookService(log_repository, flow_engine, settings.cycle_questionary_time)
+chat_bot_api = ChatBotApiClient(settings.chat_bot_api_url)
+
+
+def _record_answer(session, step, response, answer_payload) -> None:
+    """Synchronise flow answers with the chat bot API."""
+
+    if not step.answer_key:
+        return
+    try:
+        if session.flow_name == WebhookService.START_FLOW:
+            updates: Dict[str, Any] = {}
+            if step.answer_key == "consent":
+                updates["consent_accepted"] = response.value == "consent_yes"
+            elif step.answer_key == "age":
+                try:
+                    updates["age"] = int(response.value)
+                except (TypeError, ValueError):
+                    LOGGER.warning("Invalid age response for wa_id=%s: %s", session.wa_id, response.value)
+                    return
+            elif step.answer_key == "semester_band":
+                updates["semester"] = answer_payload.get("display") or answer_payload.get("value")
+            elif step.answer_key == "career":
+                updates["career"] = answer_payload.get("display") or answer_payload.get("value")
+            if updates:
+                chat_bot_api.update_student_fields(session.wa_id, **updates)
+        elif session.flow_name == WebhookService.DASS_FLOW:
+            variables = session.context.get(FlowEngine.VARIABLES_KEY, {})
+            questionnaire_id = variables.get("questionnaire_id")
+            if questionnaire_id:
+                chat_bot_api.update_questionnaire_answers(
+                    session.wa_id,
+                    str(questionnaire_id),
+                    {step.answer_key: answer_payload},
+                )
+    except Exception:
+        LOGGER.exception("Failed to persist answer for wa_id=%s step=%s", session.wa_id, step.id)
+
+
+flow_engine = FlowEngine(
+    flow_repository,
+    log_repository,
+    whatsapp_client,
+    answer_recorder=_record_answer,
+)
+webhook_service = WebhookService(log_repository, flow_engine, chat_bot_api)
 
 app = Flask(__name__)
 
@@ -43,7 +86,7 @@ def logs() -> Dict[str, Any]:
     except ValueError:
         abort(400, "limit must be numeric")
     log_entries = webhook_service.recent_logs(limit)
-    app.logger.info("Logs endpoint returning %d entries: %s", len(log_entries), log_entries)
+    app.logger.info("Logs endpoint returning %d entries", len(log_entries))
     return {
         "logs": [
             {
@@ -87,7 +130,7 @@ def dump_database() -> Dict[str, Any]:
 def reset_database() -> Dict[str, str]:
     flow_repository.delete_all_sessions()
     log_repository.delete_all_data()
-    app.logger.warning("All log tables cleared via /debug/db")
+    app.logger.warning("In-memory stores cleared via /debug/db")
     return {"status": "cleared"}
 
 
@@ -105,7 +148,7 @@ def verify() -> Any:
 def webhook() -> Dict[str, Any]:
     payload = request.get_json(silent=True) or {}
     logs = webhook_service.process_webhook(payload)
-    app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
+    app.logger.info("Webhook processed %d entries", len(logs))
     return {
         "received": len(logs),
         "logs": [

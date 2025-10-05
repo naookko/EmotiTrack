@@ -23,7 +23,7 @@ app = FastAPI(title="Chat Bot API")
 #Models
 class StudentIn(BaseModel):
     wha_id: str = Field(..., min_length=1)
-    consent_accepted: bool
+    consent_accepted: bool = False
     age: int | None = None
     semester: str | None = None
     career: str | None = None

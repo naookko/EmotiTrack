@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from ..models import AnswerLog, FlowSession
 from ..repositories.flow_repository import FlowRepository
 from ..repositories.log_repository import LogRepository
 from .whatsapp_client import WhatsAppClient
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -85,11 +89,14 @@ class FlowEngine:
         flow_repository: FlowRepository,
         log_repository: LogRepository,
         whatsapp_client: WhatsAppClient,
+        *,
+        answer_recorder: Callable[[FlowSession, FlowStepDefinition, FlowResponse, Dict[str, Any]], None] | None = None,
         flows_path: Optional[Path] = None,
     ) -> None:
         self._flow_repository = flow_repository
         self._log_repository = log_repository
         self._whatsapp_client = whatsapp_client
+        self._answer_recorder = answer_recorder
         self._flows_path = flows_path or Path(__file__).resolve().parent.parent / "flows"
         self._definitions = self._load_definitions()
 
@@ -138,6 +145,10 @@ class FlowEngine:
         flow_name: str,
         wa_id: str,
         initial_variables: Optional[Dict[str, Any]] = None,
+        *,
+        context_overrides: Optional[Dict[str, Any]] = None,
+        start_from_step: Optional[str] = None,
+        initial_step_index: Optional[int] = None,
     ) -> FlowSession:
         """Returns the active session for flow_name or creates a new one."""
 
@@ -145,14 +156,33 @@ class FlowEngine:
         if session:
             return session
         flow = self._definition(flow_name)
-        context: Dict[str, Any] = {
+        base_context: Dict[str, Any] = {
             self.ANSWERS_KEY: {},
             self.VARIABLES_KEY: dict(initial_variables or {}),
+            self.CURRENT_STEP_KEY: None,
+            self.EXPECTED_KEY: None,
         }
-        session = self._flow_repository.create_session(wa_id, flow_name, context)
-        first_step_id = flow.first_step_id()
-        if first_step_id:
-            session = self._advance_and_send(session, flow, first_step_id, context)
+        if context_overrides:
+            overrides = dict(context_overrides)
+            answers_override = overrides.pop(self.ANSWERS_KEY, None)
+            variables_override = overrides.pop(self.VARIABLES_KEY, None)
+            base_context.update(overrides)
+            if answers_override is not None:
+                base_context[self.ANSWERS_KEY] = dict(answers_override)
+            if variables_override is not None:
+                merged = dict(base_context[self.VARIABLES_KEY])
+                merged.update(dict(variables_override))
+                base_context[self.VARIABLES_KEY] = merged
+        step_index = initial_step_index if initial_step_index is not None else 0
+        session = self._flow_repository.create_session(
+            wa_id,
+            flow_name,
+            base_context,
+            step_index=step_index,
+        )
+        next_step_id = start_from_step or flow.first_step_id()
+        if next_step_id:
+            session = self._advance_and_send(session, flow, next_step_id, base_context)
         return session
 
     def handle_response(self, session: FlowSession, response: FlowResponse) -> FlowSession:
@@ -178,6 +208,12 @@ class FlowEngine:
             timestamp = response.received_at
             composed = f"{step.answer_key}:{log_value} [{timestamp}]"
             self._log_repository.save_answer(AnswerLog(session.wa_id, composed))
+            if self._answer_recorder:
+                new_answer = answers[step.answer_key]
+                try:
+                    self._answer_recorder(session, step, response, new_answer)
+                except Exception:
+                    LOGGER.exception("Answer recorder failed for wa_id=%s step=%s", session.wa_id, step.id)
         context[self.ANSWERS_KEY] = answers
         context[self.VARIABLES_KEY] = variables
         context[self.CURRENT_STEP_KEY] = step.id
@@ -224,6 +260,17 @@ class FlowEngine:
         """Marks every active session for the flow as inactive."""
 
         self._flow_repository.deactivate_flow(wa_id, flow_name)
+
+    def flow_steps(self, flow_name: str) -> List[FlowStepDefinition]:
+        """Returns the ordered list of step definitions for a flow."""
+
+        flow = self._definition(flow_name)
+        return [flow.get(step_id) for step_id in flow.order]
+
+    def get_step(self, flow_name: str, step_id: str) -> FlowStepDefinition:
+        """Convenience accessor to a single step definition."""
+
+        return self._definition(flow_name).get(step_id)
 
     def _definition(self, flow_name: str) -> FlowDefinition:
         if flow_name not in self._definitions:
