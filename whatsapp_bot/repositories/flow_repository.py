@@ -192,3 +192,10 @@ class FlowRepository:
                 (wa_id,),
             ).fetchall()
         return [_row_to_session(row) for row in rows]
+
+    def delete_all_sessions(self) -> None:
+        """Remove every flow session row."""
+        with self._db.connection() as conn:
+            conn.execute("DELETE FROM flow_sessions")
+            conn.commit()
+

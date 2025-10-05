@@ -49,14 +49,6 @@
       "next": "ask_student_id"
     },
     {
-      "id": "ask_student_id",
-      "message_type": "text",
-      "message": "Para comenzar, cual es tu codigo de estudiante?",
-      "expects_response": true,
-      "answer_key": "student_id",
-      "next": "ask_age"
-    },
-    {
       "id": "ask_age",
       "message_type": "text",
       "message": "Gracias. Ahora dime tu edad en anos.",

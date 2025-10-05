@@ -2,7 +2,7 @@ import math
 import random
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pymongo import MongoClient
 from datetime import datetime
 
@@ -22,20 +22,21 @@ app = FastAPI(title="Chat Bot API")
 
 #Models
 class StudentIn(BaseModel):
-    phone_number: str
+    wha_id: str = Field(..., min_length=1)
     consent_accepted: bool
-    code: str
-    courses: list[str] = []
+    age: int
+    semester: str
+    career: str
 
 
 class ResponseIn(BaseModel):
-    student_id: str
+    wha_id: str
     questionnaire_id: str
     answer: list[dict]
 
 
 class ScoresIn(BaseModel):
-    student_id: str
+    wha_id: str
     questionnaire_id: str
     stress_score: int
     anxiety_score: int
@@ -43,14 +44,14 @@ class ScoresIn(BaseModel):
 
 
 class AnalyticsIn(BaseModel):
-    student_id: str
+    wha_id: str
     method: str
     cluster_label: str
     notes: str = ""
 
 
 class LogIn(BaseModel):
-    student_id: str
+    wha_id: str
     log_type: str
     message: str
 
@@ -62,7 +63,7 @@ def run_kmeans(k: int = 2, max_iterations: int = 10):
         return []
 
     data = {
-        s["student_id"]: [
+        s["wha_id"]: [
             s.get("stress_score", 0),
             s.get("anxiety_score", 0),
             s.get("depression_score", 0)
@@ -98,7 +99,7 @@ def run_kmeans(k: int = 2, max_iterations: int = 10):
     for cluster_id, members in clusters.items():
         for sid, vector in members:
             analytics.insert_one({
-                "student_id": sid,
+                "wha_id": sid,
                 "method": "K-Means",
                 "cluster_label": f"cluster_{cluster_id}",
                 "run_date": datetime.utcnow(),
@@ -112,25 +113,26 @@ def run_kmeans(k: int = 2, max_iterations: int = 10):
 @app.post("/students")
 def register_student(data: StudentIn):
     student = {
-        "_id": data.code, #change the id for the one of whatsapp
-        "phone_number": data.phone_number,
+        "_id": data.wha_id,
+        "wha_id": data.wha_id,
         "consent_accepted": data.consent_accepted,
-        "code": data.code,
+        "age": data.age,
+        "semester": data.semester,
+        "career": data.career,
         "created_at": datetime.utcnow(),
-        "courses": data.courses,
     }
     students.insert_one(student)
-    return {"message": "Student registered successfully", "student_code": data.code}
+    return {"message": "Student registered successfully", "wha_id": data.wha_id}
 
 
 @app.post("/responses")
 def save_response(data: ResponseIn):
     # Generate a sequential questionnaire_id using MongoDB's count
     questionnaire_id = str(responses.count_documents({}) + 1)
-    response_id = f"resp_{datetime.utcnow().date()}_{data.student_id}"
+    response_id = f"resp_{datetime.utcnow().date()}_{data.wha_id}"
     response = {
         "_id": response_id,
-        "student_id": data.student_id,
+        "wha_id": data.wha_id,
         "questionnaire_id": questionnaire_id,
         "response_date": datetime.utcnow(),
         "answer": data.answer,

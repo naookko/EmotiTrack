@@ -85,6 +85,7 @@ def dump_database() -> Dict[str, Any]:
 
 @app.route("/debug/db", methods=["DELETE"])
 def reset_database() -> Dict[str, str]:
+    flow_repository.delete_all_sessions()
     log_repository.delete_all_data()
     app.logger.warning("All log tables cleared via /debug/db")
     return {"status": "cleared"}
@@ -104,7 +105,7 @@ def verify() -> Any:
 def webhook() -> Dict[str, Any]:
     payload = request.get_json(silent=True) or {}
     logs = webhook_service.process_webhook(payload)
-    #app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
+    app.logger.info("Webhook processed %d entries: %s", len(logs), logs)
     return {
         "received": len(logs),
         "logs": [

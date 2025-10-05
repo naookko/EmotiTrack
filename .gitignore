@@ -4,9 +4,9 @@ docs/informe_ieee/*
 !docs/informe_ieee/*.tex
 !docs/informe_ieee/*.pdf
 
-.__pycache__/
+*__pycache__/
 *.pyc
 **/venv/
 
-.env
-.sqlite3
+*.env
+*.sqlite3
