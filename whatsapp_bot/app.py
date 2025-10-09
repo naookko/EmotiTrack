@@ -50,6 +50,15 @@ def _record_answer(session, step, response, answer_payload) -> None:
             if updates:
                 chat_bot_api.update_student_fields(session.wa_id, **updates)
         elif session.flow_name == WebhookService.DASS_FLOW:
+            allowed_values = {
+                str(row.get("id"))
+                for section in (step.sections or [])
+                for row in section.get("rows", [])
+                if row.get("id") is not None
+            }
+            if allowed_values and response.value not in allowed_values:
+                LOGGER.warning("Ignoring response '%s' for wa_id=%s step=%s; expected one of %s", response.value, session.wa_id, step.id, sorted(allowed_values))
+                return
             variables = session.context.get(FlowEngine.VARIABLES_KEY, {})
             questionnaire_id = variables.get("questionnaire_id")
             if questionnaire_id:

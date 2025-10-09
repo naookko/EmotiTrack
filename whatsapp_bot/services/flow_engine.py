@@ -197,6 +197,22 @@ class FlowEngine:
         if not current_step_id:
             current_step_id = flow.order[session.step_index] if session.step_index < len(flow.order) else flow.first_step_id()
         step = flow.get(current_step_id)
+        allowed_values = self._allowed_response_ids(step)
+        if allowed_values and response.value not in allowed_values:
+            LOGGER.warning("Unexpected response '%s' for wa_id=%s step=%s; re-sending prompt", response.value, session.wa_id, step.id)
+            context[self.CURRENT_STEP_KEY] = step.id
+            context[self.EXPECTED_KEY] = {
+                "step_id": step.id,
+                "type": step.message_type,
+                "answer_key": step.answer_key,
+            }
+            updated_session = self._flow_repository.save_progress(
+                session,
+                context=context,
+                step_index=flow.index_of(step.id),
+            )
+            self._dispatch_step(session.wa_id, step, context)
+            return updated_session
         if step.answer_key:
             answers[step.answer_key] = {
                 "value": response.value,
@@ -276,6 +292,18 @@ class FlowEngine:
         if flow_name not in self._definitions:
             raise KeyError(f"Flow '{flow_name}' is not defined")
         return self._definitions[flow_name]
+
+    @staticmethod
+    def _allowed_response_ids(step: FlowStepDefinition) -> List[str]:
+        if step.message_type != "interactive_list":
+            return []
+        identifiers: List[str] = []
+        for section in step.sections or []:
+            for row in section.get("rows", []):
+                row_id = row.get("id")
+                if row_id is not None:
+                    identifiers.append(str(row_id))
+        return identifiers
 
     def _resolve_next_step(
         self,

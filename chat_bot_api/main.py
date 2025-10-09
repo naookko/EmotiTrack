@@ -1,13 +1,14 @@
 import math
+import os
 import random
 
+from datetime import datetime
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
-from datetime import datetime
 
 #Database connection
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
 db = client["chat_bot"]
 
 students = db["students"]
@@ -194,3 +195,5 @@ def update_response(wha_id: str, questionnaire_id: str, updates: dict = Body(...
 
 # After defining students collection
 students.create_index("wha_id", unique=True)
+
+

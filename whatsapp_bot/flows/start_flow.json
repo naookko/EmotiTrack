@@ -46,7 +46,7 @@
       "message_type": "text",
       "message": "Gracias por aceptar. La informacion que compartas servira para acompanarte mejor durante el semestre.",
       "expects_response": false,
-      "next": "ask_student_id"
+      "next": "ask_age"
     },
     {
       "id": "ask_age",
