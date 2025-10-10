@@ -155,7 +155,11 @@ def verify() -> Any:
 
 @app.route("/webhook", methods=["POST"])
 def webhook() -> Dict[str, Any]:
+    raw_body = request.get_data(cache=True, as_text=True)
+    LOGGER.info("Webhook received raw body (remote=%s): %s", request.remote_addr, raw_body or "<empty>")
     payload = request.get_json(silent=True) or {}
+    if not payload:
+        LOGGER.warning("Webhook received empty JSON payload")
     logs = webhook_service.process_webhook(payload)
     app.logger.info("Webhook processed %d entries", len(logs))
     return {
