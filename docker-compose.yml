@@ -2,8 +2,6 @@ services:
   mongo:
     build: ./mongodb_container
     container_name: emotitrack-mongo
-    ports:
-      - "27017:27017"
     volumes:
       - mongo-data:/data/db
     healthcheck:
