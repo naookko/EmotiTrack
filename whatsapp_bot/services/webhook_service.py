@@ -121,6 +121,7 @@ class WebhookService:
         if questionnaire_id is None:
             LOGGER.warning("Questionnaire lacks identifier for wa_id=%s", wa_id)
             return None
+        restart_required = False
         next_step_id = self._next_question_step(answers)
         if not next_step_id and self._questionnaire_expired(latest):
             LOGGER.info(
@@ -128,6 +129,7 @@ class WebhookService:
             )
             answers = {}
             next_step_id = self._next_question_step(answers)
+            restart_required = True
         if not next_step_id:
             LOGGER.info("Questionnaire already complete for wa_id=%s", wa_id)
             return None
@@ -137,7 +139,7 @@ class WebhookService:
             self._flow_engine.CURRENT_STEP_KEY: self._last_answered_step_id(answers),
         }
         variables = {"questionnaire_id": questionnaire_id}
-        return self._flow_engine.ensure_session(
+        session = self._flow_engine.ensure_session(
             self.DASS_FLOW,
             wa_id,
             initial_variables=variables,
@@ -145,6 +147,12 @@ class WebhookService:
             start_from_step=next_step_id,
             initial_step_index=max(last_index, 0),
         )
+        if restart_required:
+            LOGGER.debug(
+                "Ignoring current message for wa_id=%s due to questionnaire restart", wa_id
+            )
+            return None
+        return session
 
     def _questionnaire_expired(self, questionnaire: Dict[str, Any]) -> bool:
         timestamp = self._questionnaire_timestamp(questionnaire)
