@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..models import FlowSession, WebhookLog
@@ -27,10 +27,13 @@ class WebhookService:
         repository: LogRepository,
         flow_engine: FlowEngine,
         chat_api: ChatBotApiClient,
+        *,
+        questionnaire_timeout_minutes: int = 1,
     ) -> None:
         self._repository = repository
         self._flow_engine = flow_engine
         self._chat_api = chat_api
+        self._questionnaire_timeout = timedelta(minutes=max(1, questionnaire_timeout_minutes))
 
     def process_webhook(self, payload: Dict[str, Any]) -> List[WebhookLog]:
         logs: List[WebhookLog] = []
@@ -119,6 +122,12 @@ class WebhookService:
             LOGGER.warning("Questionnaire lacks identifier for wa_id=%s", wa_id)
             return None
         next_step_id = self._next_question_step(answers)
+        if not next_step_id and self._questionnaire_expired(latest):
+            LOGGER.info(
+                "Questionnaire expired after completion; resetting for wa_id=%s", wa_id
+            )
+            answers = {}
+            next_step_id = self._next_question_step(answers)
         if not next_step_id:
             LOGGER.info("Questionnaire already complete for wa_id=%s", wa_id)
             return None
@@ -136,6 +145,39 @@ class WebhookService:
             start_from_step=next_step_id,
             initial_step_index=max(last_index, 0),
         )
+
+    def _questionnaire_expired(self, questionnaire: Dict[str, Any]) -> bool:
+        timestamp = self._questionnaire_timestamp(questionnaire)
+        if not timestamp:
+            return False
+        now = datetime.now(timezone.utc)
+        return now - timestamp >= self._questionnaire_timeout
+
+    @staticmethod
+    def _questionnaire_timestamp(questionnaire: Dict[str, Any]) -> Optional[datetime]:
+        for key in ("updated_at", "response_date", "created_at"):
+            value = questionnaire.get(key)
+            parsed = WebhookService._parse_datetime(value)
+            if parsed:
+                return parsed
+        return None
+
+    @staticmethod
+    def _parse_datetime(value: Any) -> Optional[datetime]:
+        if isinstance(value, datetime):
+            return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        if isinstance(value, str):
+            candidate = value.strip()
+            if not candidate:
+                return None
+            if candidate.endswith("Z"):
+                candidate = candidate[:-1] + "+00:00"
+            try:
+                parsed = datetime.fromisoformat(candidate)
+            except ValueError:
+                return None
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+        return None
 
     def _next_question_step(self, answers: Dict[str, Any]) -> Optional[str]:
         steps = self._flow_engine.flow_steps(self.DASS_FLOW)

@@ -3,7 +3,7 @@ import os
 import random
 
 from datetime import datetime
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Query
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 
@@ -164,6 +164,23 @@ def get_student(wha_id: str):
     if not student:
         return {"message": "Student not found"}
     return student
+@app.get("/responses")
+def get_all_responses(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100)
+):
+    total = responses.count_documents({})
+    skip = (page - 1) * limit
+    items = list(
+        responses.find({}, {"_id": 0}).skip(skip).limit(limit)
+    )
+    return {
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "responses": items,
+    }
+
 # All responses for a student
 @app.get("/responses/{wha_id}")
 def get_responses(wha_id: str):

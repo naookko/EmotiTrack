@@ -77,7 +77,12 @@ flow_engine = FlowEngine(
     whatsapp_client,
     answer_recorder=_record_answer,
 )
-webhook_service = WebhookService(log_repository, flow_engine, chat_bot_api)
+webhook_service = WebhookService(
+    log_repository,
+    flow_engine,
+    chat_bot_api,
+    questionnaire_timeout_minutes=settings.questionnaire_timeout_minutes,
+)
 
 app = Flask(__name__)
 
