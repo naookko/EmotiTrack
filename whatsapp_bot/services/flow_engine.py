@@ -100,6 +100,14 @@ class FlowEngine:
         self._flows_path = flows_path or Path(__file__).resolve().parent.parent / "flows"
         self._definitions = self._load_definitions()
 
+    @property
+    def repository(self) -> FlowRepository:
+        return self._flow_repository
+
+    @property
+    def whatsapp_client(self) -> WhatsAppClient:
+        return self._whatsapp_client
+
     def _load_definitions(self) -> Dict[str, FlowDefinition]:
         definitions: Dict[str, FlowDefinition] = {}
         for json_path in sorted(self._flows_path.glob("*_flow.json")):

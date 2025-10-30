@@ -335,6 +335,32 @@ def calculate_all_questionnaires():
         "errors": errors,
     }
 
+
+@app.get("/scores/{questionnaire_id}")
+def get_scores(questionnaire_id: str):
+    document = responses.find_one({"questionnaire_id": questionnaire_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Questionnaire not found")
+
+    score_fields = ["stress_score", "anxiety_score", "depression_score", "total_score"]
+    scores_present = {field: document.get(field) for field in score_fields}
+    if any(value is None for value in scores_present.values()):
+        answers = document.get("answer") or {}
+        if not answers:
+            raise HTTPException(status_code=400, detail="Questionnaire lacks answers to calculate scores")
+        try:
+            recalculated = Dass21Calculator.calculate(answers)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        responses.update_one({"_id": document["_id"]}, {"$set": recalculated})
+        scores_present.update(recalculated)
+
+    return {
+        "questionnaire_id": questionnaire_id,
+        "wha_id": document.get("wha_id"),
+        **scores_present,
+    }
+
 # After defining students collection
 students.create_index("wha_id", unique=True)
 

@@ -105,3 +105,15 @@ class ChatBotApiClient:
         url = self._url("responses", wa_id, questionnaire_id)
         response = self._request("PATCH", url, json=updates)
         return response.json()
+
+    def calculate_questionnaire(self, questionnaire_id: str) -> Dict[str, Any]:
+        url = self._url("calculation", questionnaire_id)
+        response = self._request("POST", url)
+        return response.json()
+
+    def get_questionnaire_scores(self, questionnaire_id: str) -> Optional[Dict[str, Any]]:
+        url = self._url("scores", questionnaire_id)
+        response = self._request("GET", url, allow_statuses=(404,))
+        if response.status_code == 404:
+            return None
+        return response.json()

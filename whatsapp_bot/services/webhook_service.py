@@ -225,6 +225,59 @@ class WebhookService:
                 return session
         return self._flow_engine.active_session(self.DASS_FLOW, wa_id)
 
+    def _questionnaire_id_from_session(self, session: FlowSession) -> Optional[str]:
+        variables = session.context.get(self._flow_engine.VARIABLES_KEY, {})
+        questionnaire_id = variables.get("questionnaire_id")
+        if questionnaire_id is None:
+            return None
+        return str(questionnaire_id)
+
+    def _trigger_score_calculation(self, questionnaire_id: str) -> None:
+        try:
+            self._chat_api.calculate_questionnaire(questionnaire_id)
+        except Exception:
+            LOGGER.exception(
+                "Failed to trigger DASS calculation for questionnaire_id=%s",
+                questionnaire_id,
+            )
+
+    def _send_score_summary(self, wa_id: str, questionnaire_id: str) -> None:
+        try:
+            result = self._chat_api.get_questionnaire_scores(questionnaire_id)
+        except Exception:
+            LOGGER.exception(
+                "Failed to retrieve DASS scores for questionnaire_id=%s",
+                questionnaire_id,
+            )
+            return
+        if not result:
+            LOGGER.warning(
+                "No DASS scores available for questionnaire_id=%s", questionnaire_id
+            )
+            return
+        message = self._format_scores_message(result)
+        try:
+            self._flow_engine.whatsapp_client.send_text_message(wa_id, message)
+        except Exception:
+            LOGGER.exception(
+                "Failed to send DASS score summary to wa_id=%s", wa_id,
+            )
+
+    @staticmethod
+    def _format_scores_message(result: Dict[str, Any]) -> str:
+        depression = result.get("depression_score", 0)
+        stress = result.get("stress_score", 0)
+        anxiety = result.get("anxiety_score", 0)
+        total = result.get("total_score", 0)
+        lines = [
+            "Resultados DASS-21",
+            f"Depression: {depression}",
+            f"Stress: {stress}",
+            f"Anxiety: {anxiety}",
+            f"totalScore: {total}",
+        ]
+        return "\n".join(lines)
+
     def _after_progress(self, session: FlowSession) -> None:
         if session.flow_name == self.START_FLOW and not session.is_active:
             answers = session.context.get(self._flow_engine.ANSWERS_KEY, {})
@@ -234,6 +287,19 @@ class WebhookService:
             return
         if session.flow_name == self.DASS_FLOW and not session.is_active:
             LOGGER.info("Completed questionnaire flow for wa_id=%s", session.wa_id)
+            completed_session = (
+                self._flow_engine.repository.last_completed_session(session.wa_id, session.flow_name)
+                or session
+            )
+            questionnaire_id = self._questionnaire_id_from_session(completed_session)
+            if not questionnaire_id:
+                LOGGER.warning(
+                    "Unable to resolve questionnaire id for completed DASS flow wa_id=%s",
+                    session.wa_id,
+                )
+                return
+            self._trigger_score_calculation(questionnaire_id)
+            self._send_score_summary(session.wa_id, questionnaire_id)
 
     def _log_event(
         self,

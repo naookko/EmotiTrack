@@ -20,6 +20,7 @@ class FlowRepository:
     def __init__(self) -> None:
         self._sessions: Dict[int, FlowSession] = {}
         self._next_id = 1
+        self._completed: Dict[tuple[str, str], FlowSession] = {}
 
     def _new_id(self) -> int:
         session_id = self._next_id
@@ -103,6 +104,9 @@ class FlowRepository:
             context=new_context,
         )
         self._sessions[new_session.id] = new_session
+        completed_now = completed or (session.completed_at is None and new_session.completed_at is not None)
+        if completed_now:
+            self._completed[(new_session.wa_id, new_session.flow_name)] = new_session
         return new_session
 
     def deactivate_flow(self, wa_id: str, flow_name: str) -> None:
@@ -117,3 +121,7 @@ class FlowRepository:
     def delete_all_sessions(self) -> None:
         self._sessions.clear()
         self._next_id = 1
+        self._completed.clear()
+
+    def last_completed_session(self, wa_id: str, flow_name: str) -> Optional[FlowSession]:
+        return self._completed.get((wa_id, flow_name))
