@@ -3,7 +3,7 @@ import os
 import random
 
 from datetime import datetime
-from fastapi import FastAPI, Body, Query
+from fastapi import FastAPI, Body, Query, HTTPException
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 
@@ -60,6 +60,73 @@ class ResponsePatch(BaseModel):
     wha_id: str
     questionnaire_id: str
     updates: dict
+
+
+class Dass21Calculator:
+    DEPRESSION_ITEMS = [3, 5, 10, 13, 16, 17, 21]
+    ANXIETY_ITEMS = [2, 4, 7, 9, 15, 19, 20]
+    STRESS_ITEMS = [1, 6, 8, 11, 12, 14, 18]
+    QUESTION_PREFIX = "dass_q"
+
+    @classmethod
+    def _question_key(cls, index: int) -> str:
+        return f"{cls.QUESTION_PREFIX}{index:02d}"
+
+    @staticmethod
+    def _extract_score(answer_entry) -> int | None:
+        value = answer_entry
+        if isinstance(answer_entry, dict):
+            value = answer_entry.get("value")
+        if value is None:
+            return None
+        if isinstance(value, str):
+            text = value.strip()
+            if text.startswith("scale_"):
+                text = text.split("_", 1)[-1]
+            try:
+                value = int(text)
+            except ValueError:
+                return None
+        try:
+            score = int(value)
+        except (TypeError, ValueError):
+            return None
+        if 0 <= score <= 3:
+            return score
+        return None
+
+    @classmethod
+    def calculate(cls, answers: dict) -> dict:
+        if not isinstance(answers, dict):
+            raise ValueError("Answers must be a dictionary")
+
+        subscale_map = {
+            "stress": cls.STRESS_ITEMS,
+            "anxiety": cls.ANXIETY_ITEMS,
+            "depression": cls.DEPRESSION_ITEMS,
+        }
+        scores_result: dict[str, int] = {}
+        missing: list[str] = []
+
+        for label, indices in subscale_map.items():
+            subtotal = 0
+            for idx in indices:
+                key = cls._question_key(idx)
+                entry = answers.get(key)
+                score = cls._extract_score(entry)
+                if score is None:
+                    missing.append(key)
+                    continue
+                subtotal += score
+            scores_result[f"{label}_score"] = subtotal
+
+        if missing:
+            missing_sorted = ", ".join(sorted(set(missing)))
+            raise ValueError(f"Missing or invalid answers for: {missing_sorted}")
+
+        total_score = sum(scores_result.values())
+        scores_result["total_score"] = total_score
+        return scores_result
 
 
 #K-Means implementations
@@ -209,6 +276,64 @@ def update_response(wha_id: str, questionnaire_id: str, updates: dict = Body(...
         {"$set": {"answer": answer, "updated_at": datetime.utcnow()}}
     )
     return {"message": "Response updated", "modified": True, "answer": answer}
+
+
+@app.post("/calculation/{questionnaire_id}")
+def calculate_questionnaire(questionnaire_id: str):
+    document = responses.find_one({"questionnaire_id": questionnaire_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Questionnaire not found")
+    answers = document.get("answer") or {}
+    if not answers:
+        raise HTTPException(status_code=400, detail="Questionnaire has no answers")
+    try:
+        score_values = Dass21Calculator.calculate(answers)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    responses.update_one({"_id": document["_id"]}, {"$set": score_values})
+    return {
+        "questionnaire_id": questionnaire_id,
+        "wha_id": document.get("wha_id"),
+        **score_values,
+    }
+
+
+@app.post("/calculation-massive")
+def calculate_all_questionnaires():
+    processed = 0
+    skipped = 0
+    errors: list[dict[str, str]] = []
+    cursor = responses.find({}, {"questionnaire_id": 1, "wha_id": 1, "answer": 1})
+    for document in cursor:
+        questionnaire_id = document.get("questionnaire_id")
+        answers = document.get("answer") or {}
+        if not answers:
+            skipped += 1
+            if len(errors) < 50:
+                errors.append({
+                    "questionnaire_id": str(questionnaire_id),
+                    "wha_id": str(document.get("wha_id")),
+                    "error": "missing answers",
+                })
+            continue
+        try:
+            score_values = Dass21Calculator.calculate(answers)
+        except ValueError as exc:
+            skipped += 1
+            if len(errors) < 50:
+                errors.append({
+                    "questionnaire_id": str(questionnaire_id),
+                    "wha_id": str(document.get("wha_id")),
+                    "error": str(exc),
+                })
+            continue
+        responses.update_one({"_id": document["_id"]}, {"$set": score_values})
+        processed += 1
+    return {
+        "processed": processed,
+        "skipped": skipped,
+        "errors": errors,
+    }
 
 # After defining students collection
 students.create_index("wha_id", unique=True)
