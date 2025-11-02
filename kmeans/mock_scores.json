@@ -1,0 +1,1052 @@
+[
+  {
+    "student_id": "s001",
+    "stress_score": 21,
+    "anxiety_score": 19,
+    "depression_score": 14,
+    "total_score": 54
+  },
+  {
+    "student_id": "s002",
+    "stress_score": 15,
+    "anxiety_score": 16,
+    "depression_score": 18,
+    "total_score": 49
+  },
+  {
+    "student_id": "s003",
+    "stress_score": 12,
+    "anxiety_score": 7,
+    "depression_score": 10,
+    "total_score": 29
+  },
+  {
+    "student_id": "s004",
+    "stress_score": 10,
+    "anxiety_score": 9,
+    "depression_score": 12,
+    "total_score": 31
+  },
+  {
+    "student_id": "s005",
+    "stress_score": 9,
+    "anxiety_score": 7,
+    "depression_score": 9,
+    "total_score": 25
+  },
+  {
+    "student_id": "s006",
+    "stress_score": 6,
+    "anxiety_score": 3,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s007",
+    "stress_score": 5,
+    "anxiety_score": 6,
+    "depression_score": 3,
+    "total_score": 14
+  },
+  {
+    "student_id": "s008",
+    "stress_score": 12,
+    "anxiety_score": 8,
+    "depression_score": 12,
+    "total_score": 32
+  },
+  {
+    "student_id": "s009",
+    "stress_score": 14,
+    "anxiety_score": 15,
+    "depression_score": 21,
+    "total_score": 50
+  },
+  {
+    "student_id": "s010",
+    "stress_score": 8,
+    "anxiety_score": 10,
+    "depression_score": 7,
+    "total_score": 25
+  },
+  {
+    "student_id": "s011",
+    "stress_score": 11,
+    "anxiety_score": 11,
+    "depression_score": 13,
+    "total_score": 35
+  },
+  {
+    "student_id": "s012",
+    "stress_score": 21,
+    "anxiety_score": 19,
+    "depression_score": 18,
+    "total_score": 58
+  },
+  {
+    "student_id": "s013",
+    "stress_score": 18,
+    "anxiety_score": 19,
+    "depression_score": 16,
+    "total_score": 53
+  },
+  {
+    "student_id": "s014",
+    "stress_score": 8,
+    "anxiety_score": 13,
+    "depression_score": 10,
+    "total_score": 31
+  },
+  {
+    "student_id": "s015",
+    "stress_score": 7,
+    "anxiety_score": 9,
+    "depression_score": 12,
+    "total_score": 28
+  },
+  {
+    "student_id": "s016",
+    "stress_score": 6,
+    "anxiety_score": 2,
+    "depression_score": 2,
+    "total_score": 10
+  },
+  {
+    "student_id": "s017",
+    "stress_score": 3,
+    "anxiety_score": 2,
+    "depression_score": 2,
+    "total_score": 7
+  },
+  {
+    "student_id": "s018",
+    "stress_score": 7,
+    "anxiety_score": 11,
+    "depression_score": 9,
+    "total_score": 27
+  },
+  {
+    "student_id": "s019",
+    "stress_score": 3,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 8
+  },
+  {
+    "student_id": "s020",
+    "stress_score": 5,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 10
+  },
+  {
+    "student_id": "s021",
+    "stress_score": 20,
+    "anxiety_score": 21,
+    "depression_score": 14,
+    "total_score": 55
+  },
+  {
+    "student_id": "s022",
+    "stress_score": 21,
+    "anxiety_score": 17,
+    "depression_score": 21,
+    "total_score": 59
+  },
+  {
+    "student_id": "s023",
+    "stress_score": 9,
+    "anxiety_score": 11,
+    "depression_score": 7,
+    "total_score": 27
+  },
+  {
+    "student_id": "s024",
+    "stress_score": 16,
+    "anxiety_score": 17,
+    "depression_score": 14,
+    "total_score": 47
+  },
+  {
+    "student_id": "s025",
+    "stress_score": 18,
+    "anxiety_score": 16,
+    "depression_score": 20,
+    "total_score": 54
+  },
+  {
+    "student_id": "s026",
+    "stress_score": 14,
+    "anxiety_score": 19,
+    "depression_score": 21,
+    "total_score": 54
+  },
+  {
+    "student_id": "s027",
+    "stress_score": 2,
+    "anxiety_score": 2,
+    "depression_score": 5,
+    "total_score": 9
+  },
+  {
+    "student_id": "s028",
+    "stress_score": 18,
+    "anxiety_score": 17,
+    "depression_score": 20,
+    "total_score": 55
+  },
+  {
+    "student_id": "s029",
+    "stress_score": 7,
+    "anxiety_score": 9,
+    "depression_score": 7,
+    "total_score": 23
+  },
+  {
+    "student_id": "s030",
+    "stress_score": 2,
+    "anxiety_score": 2,
+    "depression_score": 5,
+    "total_score": 9
+  },
+  {
+    "student_id": "s031",
+    "stress_score": 10,
+    "anxiety_score": 11,
+    "depression_score": 8,
+    "total_score": 29
+  },
+  {
+    "student_id": "s032",
+    "stress_score": 19,
+    "anxiety_score": 18,
+    "depression_score": 16,
+    "total_score": 53
+  },
+  {
+    "student_id": "s033",
+    "stress_score": 17,
+    "anxiety_score": 16,
+    "depression_score": 17,
+    "total_score": 50
+  },
+  {
+    "student_id": "s034",
+    "stress_score": 4,
+    "anxiety_score": 3,
+    "depression_score": 5,
+    "total_score": 12
+  },
+  {
+    "student_id": "s035",
+    "stress_score": 6,
+    "anxiety_score": 4,
+    "depression_score": 5,
+    "total_score": 15
+  },
+  {
+    "student_id": "s036",
+    "stress_score": 19,
+    "anxiety_score": 16,
+    "depression_score": 21,
+    "total_score": 56
+  },
+  {
+    "student_id": "s037",
+    "stress_score": 4,
+    "anxiety_score": 4,
+    "depression_score": 2,
+    "total_score": 10
+  },
+  {
+    "student_id": "s038",
+    "stress_score": 8,
+    "anxiety_score": 11,
+    "depression_score": 7,
+    "total_score": 26
+  },
+  {
+    "student_id": "s039",
+    "stress_score": 5,
+    "anxiety_score": 2,
+    "depression_score": 2,
+    "total_score": 9
+  },
+  {
+    "student_id": "s040",
+    "stress_score": 19,
+    "anxiety_score": 21,
+    "depression_score": 20,
+    "total_score": 60
+  },
+  {
+    "student_id": "s041",
+    "stress_score": 9,
+    "anxiety_score": 13,
+    "depression_score": 11,
+    "total_score": 33
+  },
+  {
+    "student_id": "s042",
+    "stress_score": 3,
+    "anxiety_score": 5,
+    "depression_score": 6,
+    "total_score": 14
+  },
+  {
+    "student_id": "s043",
+    "stress_score": 10,
+    "anxiety_score": 8,
+    "depression_score": 10,
+    "total_score": 28
+  },
+  {
+    "student_id": "s044",
+    "stress_score": 2,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 12
+  },
+  {
+    "student_id": "s045",
+    "stress_score": 4,
+    "anxiety_score": 6,
+    "depression_score": 2,
+    "total_score": 12
+  },
+  {
+    "student_id": "s046",
+    "stress_score": 5,
+    "anxiety_score": 4,
+    "depression_score": 3,
+    "total_score": 12
+  },
+  {
+    "student_id": "s047",
+    "stress_score": 3,
+    "anxiety_score": 3,
+    "depression_score": 6,
+    "total_score": 12
+  },
+  {
+    "student_id": "s048",
+    "stress_score": 11,
+    "anxiety_score": 10,
+    "depression_score": 9,
+    "total_score": 30
+  },
+  {
+    "student_id": "s049",
+    "stress_score": 2,
+    "anxiety_score": 6,
+    "depression_score": 6,
+    "total_score": 14
+  },
+  {
+    "student_id": "s050",
+    "stress_score": 6,
+    "anxiety_score": 4,
+    "depression_score": 6,
+    "total_score": 16
+  },
+  {
+    "student_id": "s051",
+    "stress_score": 8,
+    "anxiety_score": 13,
+    "depression_score": 12,
+    "total_score": 33
+  },
+  {
+    "student_id": "s052",
+    "stress_score": 3,
+    "anxiety_score": 6,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s053",
+    "stress_score": 5,
+    "anxiety_score": 4,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s054",
+    "stress_score": 21,
+    "anxiety_score": 15,
+    "depression_score": 15,
+    "total_score": 51
+  },
+  {
+    "student_id": "s055",
+    "stress_score": 5,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 10
+  },
+  {
+    "student_id": "s056",
+    "stress_score": 8,
+    "anxiety_score": 13,
+    "depression_score": 9,
+    "total_score": 30
+  },
+  {
+    "student_id": "s057",
+    "stress_score": 5,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 15
+  },
+  {
+    "student_id": "s058",
+    "stress_score": 9,
+    "anxiety_score": 10,
+    "depression_score": 11,
+    "total_score": 30
+  },
+  {
+    "student_id": "s059",
+    "stress_score": 19,
+    "anxiety_score": 21,
+    "depression_score": 19,
+    "total_score": 59
+  },
+  {
+    "student_id": "s060",
+    "stress_score": 6,
+    "anxiety_score": 6,
+    "depression_score": 6,
+    "total_score": 18
+  },
+  {
+    "student_id": "s061",
+    "stress_score": 18,
+    "anxiety_score": 15,
+    "depression_score": 20,
+    "total_score": 53
+  },
+  {
+    "student_id": "s062",
+    "stress_score": 7,
+    "anxiety_score": 10,
+    "depression_score": 9,
+    "total_score": 26
+  },
+  {
+    "student_id": "s063",
+    "stress_score": 3,
+    "anxiety_score": 6,
+    "depression_score": 2,
+    "total_score": 11
+  },
+  {
+    "student_id": "s064",
+    "stress_score": 18,
+    "anxiety_score": 20,
+    "depression_score": 14,
+    "total_score": 52
+  },
+  {
+    "student_id": "s065",
+    "stress_score": 6,
+    "anxiety_score": 3,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s066",
+    "stress_score": 17,
+    "anxiety_score": 20,
+    "depression_score": 15,
+    "total_score": 52
+  },
+  {
+    "student_id": "s067",
+    "stress_score": 6,
+    "anxiety_score": 4,
+    "depression_score": 5,
+    "total_score": 15
+  },
+  {
+    "student_id": "s068",
+    "stress_score": 5,
+    "anxiety_score": 4,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s069",
+    "stress_score": 17,
+    "anxiety_score": 17,
+    "depression_score": 16,
+    "total_score": 50
+  },
+  {
+    "student_id": "s070",
+    "stress_score": 5,
+    "anxiety_score": 3,
+    "depression_score": 6,
+    "total_score": 14
+  },
+  {
+    "student_id": "s071",
+    "stress_score": 13,
+    "anxiety_score": 8,
+    "depression_score": 7,
+    "total_score": 28
+  },
+  {
+    "student_id": "s072",
+    "stress_score": 2,
+    "anxiety_score": 2,
+    "depression_score": 6,
+    "total_score": 10
+  },
+  {
+    "student_id": "s073",
+    "stress_score": 13,
+    "anxiety_score": 12,
+    "depression_score": 7,
+    "total_score": 32
+  },
+  {
+    "student_id": "s074",
+    "stress_score": 18,
+    "anxiety_score": 18,
+    "depression_score": 16,
+    "total_score": 52
+  },
+  {
+    "student_id": "s075",
+    "stress_score": 13,
+    "anxiety_score": 13,
+    "depression_score": 12,
+    "total_score": 38
+  },
+  {
+    "student_id": "s076",
+    "stress_score": 20,
+    "anxiety_score": 16,
+    "depression_score": 21,
+    "total_score": 57
+  },
+  {
+    "student_id": "s077",
+    "stress_score": 9,
+    "anxiety_score": 13,
+    "depression_score": 8,
+    "total_score": 30
+  },
+  {
+    "student_id": "s078",
+    "stress_score": 2,
+    "anxiety_score": 2,
+    "depression_score": 5,
+    "total_score": 9
+  },
+  {
+    "student_id": "s079",
+    "stress_score": 7,
+    "anxiety_score": 11,
+    "depression_score": 12,
+    "total_score": 30
+  },
+  {
+    "student_id": "s080",
+    "stress_score": 6,
+    "anxiety_score": 4,
+    "depression_score": 3,
+    "total_score": 13
+  },
+  {
+    "student_id": "s081",
+    "stress_score": 12,
+    "anxiety_score": 11,
+    "depression_score": 11,
+    "total_score": 34
+  },
+  {
+    "student_id": "s082",
+    "stress_score": 2,
+    "anxiety_score": 5,
+    "depression_score": 4,
+    "total_score": 11
+  },
+  {
+    "student_id": "s083",
+    "stress_score": 6,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 11
+  },
+  {
+    "student_id": "s084",
+    "stress_score": 4,
+    "anxiety_score": 4,
+    "depression_score": 2,
+    "total_score": 10
+  },
+  {
+    "student_id": "s085",
+    "stress_score": 17,
+    "anxiety_score": 17,
+    "depression_score": 14,
+    "total_score": 48
+  },
+  {
+    "student_id": "s086",
+    "stress_score": 5,
+    "anxiety_score": 6,
+    "depression_score": 5,
+    "total_score": 16
+  },
+  {
+    "student_id": "s087",
+    "stress_score": 2,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 12
+  },
+  {
+    "student_id": "s088",
+    "stress_score": 5,
+    "anxiety_score": 3,
+    "depression_score": 3,
+    "total_score": 11
+  },
+  {
+    "student_id": "s089",
+    "stress_score": 8,
+    "anxiety_score": 12,
+    "depression_score": 10,
+    "total_score": 30
+  },
+  {
+    "student_id": "s090",
+    "stress_score": 2,
+    "anxiety_score": 3,
+    "depression_score": 3,
+    "total_score": 8
+  },
+  {
+    "student_id": "s091",
+    "stress_score": 4,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 9
+  },
+  {
+    "student_id": "s092",
+    "stress_score": 3,
+    "anxiety_score": 6,
+    "depression_score": 3,
+    "total_score": 12
+  },
+  {
+    "student_id": "s093",
+    "stress_score": 6,
+    "anxiety_score": 5,
+    "depression_score": 3,
+    "total_score": 14
+  },
+  {
+    "student_id": "s094",
+    "stress_score": 3,
+    "anxiety_score": 6,
+    "depression_score": 6,
+    "total_score": 15
+  },
+  {
+    "student_id": "s095",
+    "stress_score": 7,
+    "anxiety_score": 13,
+    "depression_score": 12,
+    "total_score": 32
+  },
+  {
+    "student_id": "s096",
+    "stress_score": 4,
+    "anxiety_score": 3,
+    "depression_score": 6,
+    "total_score": 13
+  },
+  {
+    "student_id": "s097",
+    "stress_score": 5,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 10
+  },
+  {
+    "student_id": "s098",
+    "stress_score": 5,
+    "anxiety_score": 6,
+    "depression_score": 3,
+    "total_score": 14
+  },
+  {
+    "student_id": "s099",
+    "stress_score": 5,
+    "anxiety_score": 3,
+    "depression_score": 6,
+    "total_score": 14
+  },
+  {
+    "student_id": "s100",
+    "stress_score": 12,
+    "anxiety_score": 7,
+    "depression_score": 10,
+    "total_score": 29
+  },
+  {
+    "student_id": "s101",
+    "stress_score": 15,
+    "anxiety_score": 21,
+    "depression_score": 20,
+    "total_score": 56
+  },
+  {
+    "student_id": "s102",
+    "stress_score": 17,
+    "anxiety_score": 14,
+    "depression_score": 14,
+    "total_score": 45
+  },
+  {
+    "student_id": "s103",
+    "stress_score": 18,
+    "anxiety_score": 15,
+    "depression_score": 21,
+    "total_score": 54
+  },
+  {
+    "student_id": "s104",
+    "stress_score": 6,
+    "anxiety_score": 5,
+    "depression_score": 3,
+    "total_score": 14
+  },
+  {
+    "student_id": "s105",
+    "stress_score": 21,
+    "anxiety_score": 18,
+    "depression_score": 17,
+    "total_score": 56
+  },
+  {
+    "student_id": "s106",
+    "stress_score": 19,
+    "anxiety_score": 18,
+    "depression_score": 14,
+    "total_score": 51
+  },
+  {
+    "student_id": "s107",
+    "stress_score": 10,
+    "anxiety_score": 12,
+    "depression_score": 10,
+    "total_score": 32
+  },
+  {
+    "student_id": "s108",
+    "stress_score": 15,
+    "anxiety_score": 19,
+    "depression_score": 19,
+    "total_score": 53
+  },
+  {
+    "student_id": "s109",
+    "stress_score": 15,
+    "anxiety_score": 16,
+    "depression_score": 17,
+    "total_score": 48
+  },
+  {
+    "student_id": "s110",
+    "stress_score": 9,
+    "anxiety_score": 11,
+    "depression_score": 13,
+    "total_score": 33
+  },
+  {
+    "student_id": "s111",
+    "stress_score": 9,
+    "anxiety_score": 8,
+    "depression_score": 7,
+    "total_score": 24
+  },
+  {
+    "student_id": "s112",
+    "stress_score": 18,
+    "anxiety_score": 14,
+    "depression_score": 15,
+    "total_score": 47
+  },
+  {
+    "student_id": "s113",
+    "stress_score": 9,
+    "anxiety_score": 12,
+    "depression_score": 10,
+    "total_score": 31
+  },
+  {
+    "student_id": "s114",
+    "stress_score": 20,
+    "anxiety_score": 17,
+    "depression_score": 18,
+    "total_score": 55
+  },
+  {
+    "student_id": "s115",
+    "stress_score": 19,
+    "anxiety_score": 15,
+    "depression_score": 14,
+    "total_score": 48
+  },
+  {
+    "student_id": "s116",
+    "stress_score": 15,
+    "anxiety_score": 15,
+    "depression_score": 15,
+    "total_score": 45
+  },
+  {
+    "student_id": "s117",
+    "stress_score": 2,
+    "anxiety_score": 4,
+    "depression_score": 2,
+    "total_score": 8
+  },
+  {
+    "student_id": "s118",
+    "stress_score": 2,
+    "anxiety_score": 4,
+    "depression_score": 3,
+    "total_score": 9
+  },
+  {
+    "student_id": "s119",
+    "stress_score": 6,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 16
+  },
+  {
+    "student_id": "s120",
+    "stress_score": 2,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 12
+  },
+  {
+    "student_id": "s121",
+    "stress_score": 20,
+    "anxiety_score": 16,
+    "depression_score": 15,
+    "total_score": 51
+  },
+  {
+    "student_id": "s122",
+    "stress_score": 9,
+    "anxiety_score": 12,
+    "depression_score": 13,
+    "total_score": 34
+  },
+  {
+    "student_id": "s123",
+    "stress_score": 3,
+    "anxiety_score": 3,
+    "depression_score": 2,
+    "total_score": 8
+  },
+  {
+    "student_id": "s124",
+    "stress_score": 10,
+    "anxiety_score": 8,
+    "depression_score": 12,
+    "total_score": 30
+  },
+  {
+    "student_id": "s125",
+    "stress_score": 15,
+    "anxiety_score": 15,
+    "depression_score": 19,
+    "total_score": 49
+  },
+  {
+    "student_id": "s126",
+    "stress_score": 7,
+    "anxiety_score": 10,
+    "depression_score": 11,
+    "total_score": 28
+  },
+  {
+    "student_id": "s127",
+    "stress_score": 2,
+    "anxiety_score": 2,
+    "depression_score": 3,
+    "total_score": 7
+  },
+  {
+    "student_id": "s128",
+    "stress_score": 3,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 13
+  },
+  {
+    "student_id": "s129",
+    "stress_score": 6,
+    "anxiety_score": 5,
+    "depression_score": 3,
+    "total_score": 14
+  },
+  {
+    "student_id": "s130",
+    "stress_score": 4,
+    "anxiety_score": 2,
+    "depression_score": 5,
+    "total_score": 11
+  },
+  {
+    "student_id": "s131",
+    "stress_score": 9,
+    "anxiety_score": 7,
+    "depression_score": 12,
+    "total_score": 28
+  },
+  {
+    "student_id": "s132",
+    "stress_score": 16,
+    "anxiety_score": 21,
+    "depression_score": 17,
+    "total_score": 54
+  },
+  {
+    "student_id": "s133",
+    "stress_score": 8,
+    "anxiety_score": 9,
+    "depression_score": 10,
+    "total_score": 27
+  },
+  {
+    "student_id": "s134",
+    "stress_score": 17,
+    "anxiety_score": 19,
+    "depression_score": 14,
+    "total_score": 50
+  },
+  {
+    "student_id": "s135",
+    "stress_score": 10,
+    "anxiety_score": 8,
+    "depression_score": 8,
+    "total_score": 26
+  },
+  {
+    "student_id": "s136",
+    "stress_score": 16,
+    "anxiety_score": 14,
+    "depression_score": 16,
+    "total_score": 46
+  },
+  {
+    "student_id": "s137",
+    "stress_score": 20,
+    "anxiety_score": 14,
+    "depression_score": 20,
+    "total_score": 54
+  },
+  {
+    "student_id": "s138",
+    "stress_score": 20,
+    "anxiety_score": 20,
+    "depression_score": 18,
+    "total_score": 58
+  },
+  {
+    "student_id": "s139",
+    "stress_score": 5,
+    "anxiety_score": 4,
+    "depression_score": 6,
+    "total_score": 15
+  },
+  {
+    "student_id": "s140",
+    "stress_score": 9,
+    "anxiety_score": 10,
+    "depression_score": 8,
+    "total_score": 27
+  },
+  {
+    "student_id": "s141",
+    "stress_score": 18,
+    "anxiety_score": 21,
+    "depression_score": 18,
+    "total_score": 57
+  },
+  {
+    "student_id": "s142",
+    "stress_score": 3,
+    "anxiety_score": 3,
+    "depression_score": 3,
+    "total_score": 9
+  },
+  {
+    "student_id": "s143",
+    "stress_score": 5,
+    "anxiety_score": 5,
+    "depression_score": 4,
+    "total_score": 14
+  },
+  {
+    "student_id": "s144",
+    "stress_score": 14,
+    "anxiety_score": 14,
+    "depression_score": 14,
+    "total_score": 42
+  },
+  {
+    "student_id": "s145",
+    "stress_score": 2,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 12
+  },
+  {
+    "student_id": "s146",
+    "stress_score": 4,
+    "anxiety_score": 5,
+    "depression_score": 2,
+    "total_score": 11
+  },
+  {
+    "student_id": "s147",
+    "stress_score": 9,
+    "anxiety_score": 8,
+    "depression_score": 8,
+    "total_score": 25
+  },
+  {
+    "student_id": "s148",
+    "stress_score": 20,
+    "anxiety_score": 20,
+    "depression_score": 16,
+    "total_score": 56
+  },
+  {
+    "student_id": "s149",
+    "stress_score": 4,
+    "anxiety_score": 5,
+    "depression_score": 5,
+    "total_score": 14
+  },
+  {
+    "student_id": "s150",
+    "stress_score": 13,
+    "anxiety_score": 9,
+    "depression_score": 7,
+    "total_score": 29
+  }
+]
