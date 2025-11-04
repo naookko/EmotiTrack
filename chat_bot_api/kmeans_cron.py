@@ -1,26 +1,98 @@
 import polars as pl
 import json, math, random, os, shutil
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import matplotlib.pyplot as plt
+from pymongo import MongoClient
+
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DB = os.environ.get("MONGO_DB", "chat_bot")
+MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION", "responses")
+OUTPUT_BASE_PATH = os.path.join("kmeans_result_vault")
+WEEK_HISTORY_PATH = os.path.join(OUTPUT_BASE_PATH, "week_history.txt")
+
+
+def read_last_week_entry():
+    if not os.path.exists(WEEK_HISTORY_PATH):
+        return None, None
+    with open(WEEK_HISTORY_PATH, "r", encoding="utf-8") as history_file:
+        entries = [line.strip() for line in history_file if line.strip()]
+    if not entries:
+        return None, None
+    last = entries[-1]
+    try:
+        parts = dict(piece.strip().split(": ") for piece in last.split(","))
+        start = datetime.fromisoformat(parts["started_date"]).date()
+        end = datetime.fromisoformat(parts["end_date"]).date()
+        return start, end
+    except Exception:
+        return None, None
 
 # -------------------------------
-# 🧩 CARGA DE MOCK DATA DESDE JSON
+# 🧩 CARGA DE DATOS DESDE MONGODB
 # -------------------------------
-data_file = "mook_weekly_data/responses_week_8.ndjson"
-with open(data_file, "r") as f:
-    first_char = f.read(1)
-    f.seek(0)
-    if first_char == "[":
-        data = json.load(f)
+today = datetime.utcnow().date()
+current_week_start = today - timedelta(days=today.weekday())
+current_week_end = current_week_start + timedelta(days=6)
+
+last_start, last_end = read_last_week_entry()
+if last_start and last_start <= today <= last_end:
+    week_start_date = last_start
+else:
+    if last_start:
+        week_start_date = last_start + timedelta(days=7)
+        while week_start_date + timedelta(days=6) < current_week_start:
+            week_start_date += timedelta(days=7)
+        if week_start_date > current_week_start:
+            week_start_date = current_week_start
     else:
-        data = [json.loads(line) for line in f if line.strip()]
+        week_start_date = current_week_start
+
+week_end_date = week_start_date + timedelta(days=6)
+
+start_dt = datetime.combine(week_start_date, datetime.min.time())
+end_dt = datetime.combine(week_end_date + timedelta(days=1), datetime.min.time())
+
+with MongoClient(MONGO_URI) as client:
+    collection = client[MONGO_DB][MONGO_COLLECTION]
+    cursor = collection.find(
+        {"created_at": {"$gte": start_dt, "$lt": end_dt}}
+    ).sort("created_at", 1)
+    data = []
+    for doc in cursor:
+        cleaned = dict(doc)
+        cleaned["_id"] = str(doc.get("_id"))
+        created_at = cleaned.get("created_at")
+        if isinstance(created_at, datetime):
+            cleaned["created_at"] = created_at
+        data.append(cleaned)
+
+run_datetime = datetime.utcnow()
+os.makedirs(OUTPUT_BASE_PATH, exist_ok=True)
+run_output_dir = os.path.join(OUTPUT_BASE_PATH, f"{week_start_date}-{week_end_date}")
+if os.path.isdir(run_output_dir):
+    shutil.rmtree(run_output_dir)
+os.makedirs(run_output_dir, exist_ok=True)
+
+history_lines = []
+if os.path.exists(WEEK_HISTORY_PATH):
+    with open(WEEK_HISTORY_PATH, "r", encoding="utf-8") as history_file:
+        history_lines = [
+            line.strip() for line in history_file
+            if line.strip() and not line.startswith(f"started_date: {week_start_date}")
+        ]
+with open(WEEK_HISTORY_PATH, "w", encoding="utf-8") as history_file:
+    for line in history_lines:
+        history_file.write(line + "\n")
+    history_file.write(f"started_date: {week_start_date}, end_date: {week_end_date}\n")
 
 if not data:
-    raise ValueError(f"❌ No hay registros en {data_file}")
+    print(f"⚠️  No se encontraron datos en MongoDB para la semana {week_start_date} - {week_end_date}.")
+    print(f"📁 Carpeta vacía creada en {run_output_dir}.")
+    raise SystemExit(0)
 
 # Crear DataFrame Polars
 df = pl.DataFrame(data)
-print(f"✅ Datos cargados desde {data_file}:")
+print(f"✅ Datos cargados desde MongoDB para la semana {week_start_date} - {week_end_date}:")
 print(df)
 
 def parse_record_timestamp(record):
@@ -56,15 +128,6 @@ elif "_id" in df.columns:
 else:
     identifier_column = "student_id"
     result_identifier_key = "student_id"
-run_datetime = datetime.utcnow()
-output_base_path = os.path.join("kmeans_result_vault")
-os.makedirs(output_base_path, exist_ok=True)
-run_output_dir = os.path.join(output_base_path, f"{week_start_date}-{week_end_date}")
-if os.path.isdir(run_output_dir):
-    shutil.rmtree(run_output_dir)
-os.makedirs(run_output_dir, exist_ok=True)
-with open(os.path.join(output_base_path, "week_history.txt"), "a") as history_file:
-    history_file.write(f"started_date: {week_start_date}, end_date: {week_end_date}\n")
 
 # Convertir los datos a listas numéricas
 vectors = [

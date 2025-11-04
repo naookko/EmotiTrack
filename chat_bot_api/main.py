@@ -248,6 +248,27 @@ def get_all_responses(
         "responses": items,
     }
 
+@app.post("/responses/{wha_id}")
+def create_questionnaire(wha_id: str):
+    questionnaire_id = _generate_questionnaire_id()
+    now = datetime.utcnow()
+    document = {
+        "wha_id": wha_id,
+        "questionnaire_id": questionnaire_id,
+        "answer": {},
+        "response_date": now,
+        "created_at": now,
+    }
+    responses.insert_one(document)
+    return {
+        "message": "Questionnaire created",
+        "questionnaire_id": questionnaire_id,
+        "wha_id": wha_id,
+        "answer": document["answer"],
+        "response_date": document["response_date"],
+        "created_at": document["created_at"],
+    }
+
 # All responses for a student
 @app.get("/responses/{wha_id}")
 def get_responses(wha_id: str):

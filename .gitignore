@@ -10,3 +10,5 @@ docs/informe_ieee/*
 
 *.env
 *.sqlite3
+
+kmeans_result_vault
