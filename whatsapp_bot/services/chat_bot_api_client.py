@@ -106,8 +106,8 @@ class ChatBotApiClient:
         response = self._request("PATCH", url, json=updates)
         return response.json()
 
-    def calculate_questionnaire(self, questionnaire_id: str) -> Dict[str, Any]:
-        url = self._url("calculation", questionnaire_id)
+    def calculate_questionnaire(self, wa_id: str, questionnaire_id: str) -> Dict[str, Any]:
+        url = self._url("calculation", wa_id, questionnaire_id)
         response = self._request("POST", url)
         return response.json()
 

@@ -299,9 +299,9 @@ def update_response(wha_id: str, questionnaire_id: str, updates: dict = Body(...
     return {"message": "Response updated", "modified": True, "answer": answer}
 
 
-@app.post("/calculation/{questionnaire_id}")
-def calculate_questionnaire(questionnaire_id: str):
-    document = responses.find_one({"questionnaire_id": questionnaire_id})
+@app.post("/calculation/{wha_id}/{questionnaire_id}")
+def calculate_questionnaire(wha_id: str, questionnaire_id: str):
+    document = responses.find_one({"wha_id": wha_id, "questionnaire_id": questionnaire_id})
     if not document:
         raise HTTPException(status_code=404, detail="Questionnaire not found")
     answers = document.get("answer") or {}
@@ -314,7 +314,7 @@ def calculate_questionnaire(questionnaire_id: str):
     responses.update_one({"_id": document["_id"]}, {"$set": score_values})
     return {
         "questionnaire_id": questionnaire_id,
-        "wha_id": document.get("wha_id"),
+        "wha_id": wha_id,
         **score_values,
     }
 

@@ -119,8 +119,10 @@ class WebhookService:
         answers = latest.get("answer") or {}
         questionnaire_id = latest.get("questionnaire_id")
         if questionnaire_id is None:
-            LOGGER.warning("Questionnaire lacks identifier for wa_id=%s", wa_id)
-            return None
+            LOGGER.warning(
+                "Questionnaire lacks identifier for wa_id=%s; running flow without persistence",
+                wa_id,
+            )
         restart_required = False
         next_step_id = self._next_question_step(answers)
         if not next_step_id and self._questionnaire_expired(latest):
@@ -138,11 +140,11 @@ class WebhookService:
             self._flow_engine.ANSWERS_KEY: answers,
             self._flow_engine.CURRENT_STEP_KEY: self._last_answered_step_id(answers),
         }
-        variables = {"questionnaire_id": questionnaire_id}
+        variables = {"questionnaire_id": questionnaire_id} if questionnaire_id is not None else {}
         session = self._flow_engine.ensure_session(
             self.DASS_FLOW,
             wa_id,
-            initial_variables=variables,
+            initial_variables=variables or None,
             context_overrides=context_overrides,
             start_from_step=next_step_id,
             initial_step_index=max(last_index, 0),
@@ -232,9 +234,9 @@ class WebhookService:
             return None
         return str(questionnaire_id)
 
-    def _trigger_score_calculation(self, questionnaire_id: str) -> None:
+    def _trigger_score_calculation(self, wa_id: str, questionnaire_id: str) -> None:
         try:
-            self._chat_api.calculate_questionnaire(questionnaire_id)
+            self._chat_api.calculate_questionnaire(wa_id, questionnaire_id)
         except Exception:
             LOGGER.exception(
                 "Failed to trigger DASS calculation for questionnaire_id=%s",
@@ -298,7 +300,7 @@ class WebhookService:
                     session.wa_id,
                 )
                 return
-            self._trigger_score_calculation(questionnaire_id)
+            self._trigger_score_calculation(session.wa_id, questionnaire_id)
             self._send_score_summary(session.wa_id, questionnaire_id)
 
     def _log_event(
