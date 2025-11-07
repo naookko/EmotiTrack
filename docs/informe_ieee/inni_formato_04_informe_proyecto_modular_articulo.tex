@@ -110,6 +110,9 @@ El proyecto se gestionó con un enfoque ágil basado en \textbf{Scrum}. Se defin
 \subsection*{B. Arquitectura técnica y robustez}
 La solución integra la \textbf{WhatsApp Business Cloud API} mediante \textit{webhooks} que entregan mensajes entrantes a un servicio \textbf{FastAPI}. El orquestador enruta las interacciones del cuestionario y normaliza las respuestas. La persistencia se realiza en \textbf{MongoDB}. Un \textit{pipeline} de \textbf{jobs} semanales ejecuta la analítica con \textbf{Polars} y, cuando corresponde, algoritmos de \textbf{clustering} (p.\,ej., K{-}Means con método del codo). Los resultados se publican como \textbf{informes} y \textbf{tableros} para autoridades académicas.
 
+
+
+La capa de visualizaci\'{o}n incorpora un \textbf{dashboard Laravel + Filament} protegido por el guard \texttt{web} y el \texttt{middleware} \texttt{auth}. La autenticaci\'{o}n se scaffolde\'o con Laravel Breeze para disponer de verificaci\'{o}n de correo y recuperaci\'{o}n de credenciales, mientras que la autorizaci\'{o}n combina \textbf{Policies} y el paquete \texttt{spatie/laravel-permission} para declarar \textit{roles} (Administraci\'{o}n, Psicolog\'{\i}a/Orientaci\'{o}n, Coordinaci\'{o}n Acad\'{e}mica e Investigaci\'{o}n) y \textit{permisos} (ver/exportar cohortes, administrar cat\'{a}logos, ajustar par\'{a}metros, emitir alertas). Filament expone estos objetos como recursos CRUD y permite inyectar reglas \texttt{@can} y \texttt{can()} en cada vista, de modo que widgets, acciones masivas y exportaciones se condicionan a los permisos y las operaciones sensibles se registran en \texttt{system\_logs}. El panel renderiza KPIs (tasa de respuesta, distribuciones de severidad, estabilidad de cl\'{u}steres) y exportables (CSV/PDF) sin exponer identificadores directos.
 Para \textbf{resiliencia}, la capa de integración aplica \textit{timeouts}, reintentos con \textit{exponential backoff}, \textbf{idempotencia} de operaciones y \textit{dead-letter queues} (DLQ) para eventos fallidos. La observabilidad incluye \textbf{logging estructurado}, métricas (tiempos de respuesta y errores por ruta) y trazas distribuidas. Se definieron \textit{SLOs} iniciales: disponibilidad $\geq 99\%$ y p95 $< 1\,\mathrm{s}$ en recepción de \textit{webhook}.
 
 \subsection*{C. Modelo de datos y gobierno}
@@ -130,10 +133,16 @@ Cada semana el bot inicia un \textbf{check-in} con el DASS{-}21. Los ítems se a
 Con \textbf{Polars} se ejecuta el EDA y los agregados (medianas, IQR, tasas de respuesta, faltantes). Las características incluyen: deltas semanales, \textit{rolling windows}, marcadores de semanas críticas (parciales/entregas), y proporción de respuestas fuera de umbral. Para \textbf{K{-}Means}, se escala el espacio de características y se estima $k$ con \textbf{método del codo} (SSE vs.~$k$). Se validan soluciones con \textit{silhouette} y estabilidad de centroides. Se consideran modelos interpretables (p.\,ej., \textbf{CART}) para reglas comprensibles por tomadores de decisión.
 
 \subsection*{F. Seguridad, ética y cumplimiento}
-El sistema es \textbf{preventivo}, no clínico. Se incluye \textit{disclaimer} y \textbf{consentimiento informado}. La analítica evita decisiones automáticas individualizantes; los \textbf{alertamientos} (si se activan) deben insertarse en protocolos universitarios de apoyo. Se resguardan datos con cifrado en tránsito y en reposo, control de accesos y auditoría de uso. Las métricas y reportes agregados reducen el riesgo de identificación re\-identificable.
+El sistema es \textbf{preventivo}, no cl\'{\i}nico. Se incluye \textit{disclaimer} y \textbf{consentimiento informado} alineado a la LFPDPPP para habilitar derechos ARCO. Los datos se capturan con identificadores seud\'{o}nimicos, se cifran en tr\'{a}nsito (\texttt{HTTPS/TLS}) y en reposo, y se gobiernan con \textbf{RBAC} y \textit{Policies}. La retenci\'{o}n se fija en seis meses para respuestas crudas (\texttt{responses}) mediante TTL, mientras que los agregados (\texttt{scores}, \texttt{analytics}) conservan s\'{o}lo metadatos necesarios. La anal\'{\i}tica evita decisiones autom\'{a}ticas individualizantes; los \textbf{alertamientos} (si se activan) se insertan en protocolos de orientaci\'{o}n y requieren doble confirmaci\'{o}n de personal autorizado. Toda acci\'{o}n cr\'{\i}tica (exportaciones nominativas, cambios de umbrales, gesti\'{o}n de roles) genera entradas en \texttt{system\_logs} para auditor\'{\i}a y las m\'{e}tricas se publican de forma agregada para reducir el riesgo de reidentificaci\'{o}n.
+
 
 \subsection*{G. DevOps, pruebas y aseguramiento de calidad}
 El despliegue usa \textbf{Docker} y \textit{pipelines} CI para pruebas, estática de código y publicación. Hay pruebas unitarias para el \textit{scoring} DASS{-}21 y pruebas de integración sobre \textit{webhooks} y persistencia. Se definen \textit{health checks} e \textit{infra as code}. La trazabilidad de experimentos se preserva en \texttt{analytics} con metadatos de versiones de datos y parámetros.
+
+
+
+\subsection*{H. Tablero operacional y control de acceso}
+El dashboard se construy\'{o} con \textbf{Laravel} y \textbf{Filament}, aprovechando el guard \texttt{web} para sesi\'{o}n y las \textbf{Policies} de Laravel para garantizar que cada recurso (\texttt{Student}, \texttt{Score}, \texttt{Alert}) cumpla reglas de negocio. La extensi\'{o}n \texttt{spatie/laravel-permission} define \textit{roles} jer\'{a}rquicos (Admin, Psicolog\'{\i}a/Orientaci\'{o}n, Coordinaci\'{o}n Acad\'{e}mica, Investigaci\'{o}n) y \textit{permisos} granulares; Filament ofrece recursos CRUD para administrarlos sin salir del panel. Las vistas se agrupan en \textbf{overview} (KPIs globales), \textbf{cohortes} (tasa de respuesta y severidades por grado), \textbf{alertas} (estudiantes con severidades altas consecutivas) y \textbf{exportaciones} (CSV/PDF seudonimizados). Cada widget usa \texttt{@can} para exponer s\'{o}lo los datos autorizados y las operaciones sensibles (descargas nominativas, cambios de umbrales, gesti\'{o}n de permisos) escriben entradas en \texttt{system\_logs}. El panel tambi\'{e}n muestra \textbf{indicadores de clustering} (inercia, \textit{silhouette}) y comparativas semanales para transparentar la estabilidad de los segmentos autom\'{a}ticos.
 
 \subsection*{Módulo Gestión de la tecnología de información}
 Este módulo enmarca la \textbf{planificación, gobierno y operación} del proyecto modular. Define cómo se gestionan recursos, riesgos, calidad y seguridad para entregar valor con evidencia. En este proyecto se adopta \textbf{Scrum} (sprints, backlog, revisiones, DoD) con responsabilidades definidas: Johan (bot e integración) y Diego (analítica con Polars). Se gestionan \textbf{requisitos} para entrevistas \textbf{semanales} por WhatsApp basadas en DASS{-}21, \textbf{datos} (consentimiento, minimización, seudonimización, control de acceso y retención), \textbf{calidad y documentación} (reporte LaTeX, referencias IEEE, versionamiento, CI/CD), y \textbf{seguridad} (gestión de secretos, cifrado en tránsito y en reposo, RBAC). 
@@ -143,7 +152,7 @@ Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de dispo
 
 \subsection*{Módulo Justificación de Cómputo Flexible (softcomputing)}
 El proyecto aplica \textbf{métodos flexibles} para manejar variabilidad y ruido en datos de bienestar emocional. Se utiliza \textbf{DASS{-}21} con cálculo estandarizado de subescalas (depresión, ansiedad, estrés) en cortes \textbf{semanales}, validando completitud y rangos. La \textbf{ingeniería de características} incorpora contexto académico (materias, semanas de parciales/entregas), patrones de respuesta y cambios abruptos. Para descubrir \textbf{patrones de riesgo y evolución} se emplean \textbf{clustering} (K{-}Means/DBSCAN) y modelos \textbf{interpretables} tipo \textbf{CART} para reglas y umbrales trazables. La validación incluye CV, análisis de drift e interpretabilidad, con salvaguardas éticas (no diagnóstico clínico, uso para prevención). Los hallazgos se comunican en \textbf{tableros} (Streamlit/Gradio) que muestran tendencias semanales, clusters y hotspots por materia/fecha para apoyar decisiones institucionales.
-
+ 
 \section*{IV. RESULTADOS OBTENIDOS DEL PROYECTO}
 Se ejecut\'{o} una \textbf{prueba de concepto} mediante simulaci\'{o}n de 100 cuestionarios DASS{-}21 por semana durante cuatro semanas (400 registros en total). Los env\'{\i}os se calendarizaron como \emph{check-ins} semanales para validar la generaci\'{o}n de cl\'{u}steres independientes en cada corte temporal.
 
@@ -153,6 +162,16 @@ Se ejecut\'{o} una \textbf{prueba de concepto} mediante simulaci\'{o}n de 100 cu
   \item \textbf{Calidad de datos}: el 98\% de registros cumpli\'{o} con las verificaciones de completitud y las pocas omisiones se recuperaron mediante reintentos autom\'{a}ticos, preservando la integridad semanal.
   \item \textbf{Clustering semanal}: se ejecut\'{o} K{-}Means con $k{=}3$ en cada semana para identificar patrones de riesgo replicables. Los centroides describen tres perfiles (C1: baja carga estable; C2: moderada con oscilaciones; C3: alta persistente)
 \end{itemize}
+
+Para documentar el comportamiento de una semana representativa (semana 3 de la simulaci\'{o}n), se publicaron los gr\'{a}ficos de la Figura~\ref{fig:elbow}. Ambos se generan ejecutando \texttt{python kmeans/main.py}, que carga \texttt{mock\_scores.json}, aplica la implementaci\'{o}n manual de K{-}Means descrita en la Secci\'{o}n~III-E y guarda las salidas en \texttt{docs/img}. El panel del m\'{e}todo del codo (izquierda) muestra la relaci\'{o}n SSE vs.~$k$, donde el cambio de pendiente entre $k{=}2$ y $k{=}3$ respalda la selecci\'{o}n de tres conglomerados para esa semana. La visualizaci\'{o}n 3D (derecha) proyecta los puntajes semanales de estr\'{e}s, ansiedad y depresi\'{o}n para evidenciar c\'{o}mo los clusters C1--C3 se separan y c\'{o}mo los centroides (marcadores \texttt{X}) definen perfiles de riesgo operables en el dashboard.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../img/elbow_method-2025-09-08.png}\hfill
+  \includegraphics[width=0.48\textwidth]{../img/clusters_3D-2025-09-08.png}
+  \caption{Semana 3 de la prueba de concepto. Izquierda: m\'{e}todo del codo (SSE por $k$). Derecha: clusters 3D (estr\'{e}s, ansiedad, depresi\'{o}n) calculados con K{-}Means ($k{=}3$).}
+  \label{fig:elbow}
+\end{figure}
 
 En conjunto, la prueba de concepto \textbf{confirm\'{o}} los objetivos de captura automatizada, c\'{a}lculo estandarizado de puntajes, agregaci\'{o}n semanal y generaci\'{o}n de cl\'{u}steres interpretables con \textbf{robustez operativa}. Estos hallazgos preparan el despliegue con datos reales una vez obtenidas las autorizaciones institucionales.
 
