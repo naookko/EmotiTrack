@@ -107,7 +107,7 @@ En esta etapa se ejecut\'{o} una prueba de concepto que automatiz\'{o} el env\'{
 \subsection*{A. Metodología de trabajo y gestión}
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.48\textwidth]{./img/timelineAgile.jpg}
+  \includegraphics[width=0.48\textwidth]{../img/timelineAgile.jpg}
   \caption{Cronograma ágil exportado desde Jira (Sprints Modular UDG).}
   \label{fig:timeline_agile}
 \end{figure}
@@ -117,7 +117,7 @@ La Figura~\ref{fig:graph_agile}, que muestra el \textbf{Cumulative Flow Diagram}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.48\textwidth]{./img/graphToDoDone.jpg}
+  \includegraphics[width=0.48\textwidth]{../img/graphToDoDone.jpg}
   \caption{Gráfica de tareas por realizar contra completadas.}
   \label{fig:graph_agile}
 \end{figure}
@@ -165,7 +165,19 @@ El dashboard se construy\'{o} con \textbf{Laravel} y \textbf{Filament}, aprovech
 Este módulo enmarca la \textbf{planificación, gobierno y operación} del proyecto modular. Define cómo se gestionan recursos, riesgos, calidad y seguridad para entregar valor con evidencia. En este proyecto se adopta \textbf{Scrum} (sprints, backlog, revisiones, DoD) con responsabilidades definidas: Johan (bot e integración) y Diego (analítica con Polars). Se gestionan \textbf{requisitos} para entrevistas \textbf{semanales} por WhatsApp basadas en DASS{-}21, \textbf{datos} (consentimiento, minimización, seudonimización, control de acceso y retención), \textbf{calidad y documentación} (reporte LaTeX, referencias IEEE, versionamiento, CI/CD), y \textbf{seguridad} (gestión de secretos, cifrado en tránsito y en reposo, RBAC). 
 
 \subsection*{Módulo Sistemas robustos, paralelos y distribuidos}
-Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de disponibilidad, escalabilidad y tolerancia a fallos. La solución integra \textbf{WhatsApp Business Cloud API} mediante webhooks, un servicio de orquestación para envío/recepción de mensajes, \textbf{colas de mensajes} para desacoplar e implementar reintentos/backoff, y \textbf{workers} paralelos para procesar respuestas y persistir en la base de datos. Se emplea \textbf{Docker} y despliegues en nube (p.\,ej., Azure/AWS), con estrategias blue/green o rolling. Los \textbf{jobs semanales} de analítica usan \textbf{Polars} (ejecución perezosa y paralela) para EDA y agregaciones. La robustez se refuerza con timeouts, circuit breakers, idempotencia y DLQ; la \textbf{observabilidad} con logging estructurado, métricas y trazas distribuidas (SLO: disponibilidad $\geq$ 99\%, p95 $<$ 1\,s en webhook). Se contemplan respaldos, restauración ensayada e infraestructura como código.
+Este módulo vincula la \textbf{arquitectura de despliegue} con los objetivos de disponibilidad y resiliencia. El stack se ejecuta en una instancia \textbf{AWS EC2} containerizada con \textbf{Docker}, donde cada servicio (listener FastAPI, workers de analítica, listener de webhooks) corre en contenedores aislados, con sus dependencias y puertos mínimos publicados\cite{docker_docs}. Esta estrategia facilita \textbf{reproducibilidad} (mismas imágenes en desarrollo y producción), \textbf{escalabilidad horizontal} (réplicas adicionales por servicio durante picos) y contención de fallos: si un worker se cae, el resto del sistema continúa operando.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../img/DiagramainfraestructuraEmotitrack.drawio.png}
+  \caption{Topología de despliegue: Nginx + Docker en EC2 con contenedores aislados y monitoreo.}
+  \label{fig:infra_diagram}
+\end{figure}
+
+El \textbf{reverse proxy Nginx} termina TLS y enruta tráfico a los contenedores internos. Los certificados \textbf{SSL/TLS} provienen de \textbf{Let's Encrypt} mediante \textbf{Certbot}, con renovación automática cada 90 días\cite{certbot_docs}. Nginx fuerza redirección 80$\rightarrow$443 y sólo expone el puerto necesario hacia FastAPI, de forma que los microservicios nunca quedan abiertos a Internet.
+
+La \textbf{capa de red} sigue el principio de privilegios mínimos: el \textbf{security group} de EC2 abre únicamente 22/TCP (administración), 80/TCP (validación Certbot) y 443/TCP (webhooks). Todos los puertos internos de contenedores permanecen cerrados al exterior, lo que reduce la superficie de ataque y se alinea con las guías de AWS\cite{aws_security_groups}. Cada webhook de WhatsApp llega cifrado a Nginx, se reenvía a FastAPI y dispara tareas asíncronas (por \textit{background tasks} o colas internas) que procesan los datos en paralelo sin bloquear la respuesta.
+
+Los \textbf{jobs de analítica} (Polars, K{-}Means) corren en contenedores dedicados programados vía cron o servicios supervisados; comparten una red interna con MongoDB y publican resultados en almacenamiento persistente. Se monitorean \textbf{timeouts}, \textbf{reintentos exponenciales}, \textbf{idempotencia} de operaciones y \textbf{dead-letter queues} para eventos fallidos, acompañados de \textbf{logging estructurado}, métricas de p95 de webhook $<1\,\mathrm{s}$ y trazas distribuidas. Este diseño modular asegura que la plataforma sea \textbf{segura} (TLS + puertos mínimos), \textbf{escalable} (réplicas de contenedores) y \textbf{tolerante a fallos} (aislamiento + reinicios automatizados), cumpliendo con los requerimientos del módulo.
 
 \subsection*{Módulo Justificación de Cómputo Flexible (softcomputing)}
 El proyecto aplica \textbf{métodos flexibles} para manejar la variabilidad y el ruido inherentes a los datos de bienestar emocional. Se trabaja con \textbf{DASS{-}21} y cortes \textbf{semanales} que estandarizan subescalas (depresión, ansiedad, estrés) y validan completitud/rangos antes de alimentar la \textbf{ingeniería de características}, la cual agrega contexto académico (materias, semanas de parcial, cargas simultáneas), marcadores de respuesta tardía y deltas entre check-ins consecutivos descritos en \texttt{kmeans\_full\_markdown.md}.
@@ -236,5 +248,14 @@ Se agradece la guía de los asesores \textbf{Alexander Garcia González} y \text
 
   \bibitem{sklearn}
   F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \emph{Journal of Machine Learning Research}, vol.~12, pp.~2825--2830, 2011.
+
+  \bibitem{docker_docs}
+  Docker, ``Container isolation and security best practices,'' \url{https://docs.docker.com/} (último acceso: Nov. 2025).
+
+  \bibitem{certbot_docs}
+  Electronic Frontier Foundation, ``Certbot documentation for Nginx and Let's Encrypt,'' \url{https://certbot.eff.org/} (último acceso: Nov. 2025).
+
+  \bibitem{aws_security_groups}
+  Amazon Web Services, ``Security groups for your VPC,'' \url{https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html} (último acceso: Nov. 2025).
 \end{thebibliography}
 \end{document}
