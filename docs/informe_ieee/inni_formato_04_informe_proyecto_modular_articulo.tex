@@ -168,7 +168,15 @@ Este módulo enmarca la \textbf{planificación, gobierno y operación} del proye
 Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de disponibilidad, escalabilidad y tolerancia a fallos. La solución integra \textbf{WhatsApp Business Cloud API} mediante webhooks, un servicio de orquestación para envío/recepción de mensajes, \textbf{colas de mensajes} para desacoplar e implementar reintentos/backoff, y \textbf{workers} paralelos para procesar respuestas y persistir en la base de datos. Se emplea \textbf{Docker} y despliegues en nube (p.\,ej., Azure/AWS), con estrategias blue/green o rolling. Los \textbf{jobs semanales} de analítica usan \textbf{Polars} (ejecución perezosa y paralela) para EDA y agregaciones. La robustez se refuerza con timeouts, circuit breakers, idempotencia y DLQ; la \textbf{observabilidad} con logging estructurado, métricas y trazas distribuidas (SLO: disponibilidad $\geq$ 99\%, p95 $<$ 1\,s en webhook). Se contemplan respaldos, restauración ensayada e infraestructura como código.
 
 \subsection*{Módulo Justificación de Cómputo Flexible (softcomputing)}
-El proyecto aplica \textbf{métodos flexibles} para manejar variabilidad y ruido en datos de bienestar emocional. Se utiliza \textbf{DASS{-}21} con cálculo estandarizado de subescalas (depresión, ansiedad, estrés) en cortes \textbf{semanales}, validando completitud y rangos. La \textbf{ingeniería de características} incorpora contexto académico (materias, semanas de parciales/entregas), patrones de respuesta y cambios abruptos. Para descubrir \textbf{patrones de riesgo y evolución} se emplean \textbf{clustering} (K{-}Means/DBSCAN) y modelos \textbf{interpretables} tipo \textbf{CART} para reglas y umbrales trazables. La validación incluye CV, análisis de drift e interpretabilidad, con salvaguardas éticas (no diagnóstico clínico, uso para prevención). Los hallazgos se comunican en \textbf{tableros} (Streamlit/Gradio) que muestran tendencias semanales, clusters y hotspots por materia/fecha para apoyar decisiones institucionales.
+El proyecto aplica \textbf{métodos flexibles} para manejar la variabilidad y el ruido inherentes a los datos de bienestar emocional. Se trabaja con \textbf{DASS{-}21} y cortes \textbf{semanales} que estandarizan subescalas (depresión, ansiedad, estrés) y validan completitud/rangos antes de alimentar la \textbf{ingeniería de características}, la cual agrega contexto académico (materias, semanas de parcial, cargas simultáneas), marcadores de respuesta tardía y deltas entre check-ins consecutivos descritos en \texttt{kmeans\_full\_markdown.md}.
+
+Para segmentar perfiles se eligió \textbf{K{-}Means} porque es \textbf{intuitivo} (cada centroide representa un perfil promedio comprensible por psicólogos), \textbf{eficiente} para recalcular con lotes semanales y \textbf{consistente} al mantener el mismo \(k\) y comparar centroides entre semanas. El algoritmo, propuesto por MacQueen y formalizado por Lloyd, Hartigan y Wong\cite{macqueen1967,lloyd1982,hartiganwong1979}, minimiza la inercia
+\[
+J = \sum_{i=1}^{K} \sum_{x \in C_i} \lVert x - \mu_i \rVert^2
+\]
+y su implementación en \textbf{Scikit-Learn}\cite{sklearn} permite controlar inicializaciones (K{-}Means\texttt{++}), reproducibilidad y métricas (\textit{inertia}, \textit{silhouette}). La selección de \(k\) se respalda con el método del codo y \textit{cross-validation} semanal sobre el dataset simulado, además del monitoreo de drift entre centroides consecutivos.
+
+Se documenta también la \textbf{complejidad} casi lineal \(O(n \times k \times t)\) que vuelve viable recalcular clústeres con 100 respuestas por semana, así como las suposiciones de \textbf{formas globulares} y necesidad de \textbf{escalamiento} para variables en distinta magnitud (implementado con normalización min-max previa). Se evaluaron alternativas como \textbf{clustering jerárquico} y \textbf{DBSCAN}; sin embargo, requieren mayor calibración (dendrogramas o pares \(\varepsilon\)/MinPts) y generan clústeres menos estables entre semanas con tamaños de muestra reducidos, lo que dificulta su comunicación en tablero. K{-}Means ofrece un \textbf{equilibrio entre simplicidad operativa y valor interpretativo}: produce 3--5 segmentos repetibles, permite etiquetar alertas por proximidad a centroides y se integra a los dashboards (Filament/Streamlit) con indicadores de tendencia, drift e inercia. La capa de softcomputing se completa con reglas \textbf{CART} para validar los segmentos, pruebas de sensibilidad con semillas distintas y monitoreo ético (el modelo sólo sugiere acciones preventivas, no diagnósticos clínicos).
  
 \section*{IV. RESULTADOS OBTENIDOS DEL PROYECTO}
 Se ejecut\'{o} una \textbf{prueba de concepto} mediante simulaci\'{o}n de 100 cuestionarios DASS{-}21 por semana durante cuatro semanas (400 registros en total). Los env\'{\i}os se calendarizaron como \emph{check-ins} semanales para validar la generaci\'{o}n de cl\'{u}steres independientes en cada corte temporal.
@@ -210,6 +218,15 @@ Se agradece la guía de los asesores \textbf{Alexander Garcia González} y \text
 
   \bibitem{antony1998}
   M.~M. Antony, P.~J. Bieling, B.~J. Cox, M.~W. Enns, and R.~P. Swinson, ``Psychometric properties of the 42-item and 21-item versions of the Depression Anxiety Stress Scales in clinical groups and a community sample,'' \emph{Psychological Assessment}, vol.~10, no.~2, pp.~176--181, 1998.
+
+  \bibitem{macqueen1967}
+  J.~MacQueen, ``Some methods for classification and analysis of multivariate observations,'' in \emph{Proc. Fifth Berkeley Symposium on Mathematical Statistics and Probability}, vol.~1, 1967, pp.~281--297.
+
+  \bibitem{lloyd1982}
+  S.~P. Lloyd, ``Least squares quantization in PCM,'' \emph{IEEE Transactions on Information Theory}, vol.~28, no.~2, pp.~129--137, 1982.
+
+  \bibitem{hartiganwong1979}
+  J.~A. Hartigan and M.~A. Wong, ``Algorithm AS 136: A k-means clustering algorithm,'' \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, vol.~28, no.~1, pp.~100--108, 1979.
 
   \bibitem{fastapi}
   S.~Tiangolo, ``FastAPI,'' \url{https://fastapi.tiangolo.com/} (último acceso: Nov. 2025).
