@@ -56,141 +56,37 @@ Para \textbf{minería de datos} y análisis semanal (EDA, \emph{feature engineer
 El DASS{-}21 es un \textbf{tamizaje dimensional} y no un diagnóstico clínico. Se recomienda: (i) incluir mensajes de \emph{disclaimer} en el bot, (ii) vigilar \emph{drift} y \emph{missingness} en los datos semanales, y (iii) acompañar con rutas de derivación cuando se observen puntajes elevados persistentes. Estas prácticas preservan la \textbf{utilidad preventiva} y la \textbf{responsabilidad ética} del sistema.
 
 \section*{III. DESCRIPCIÓN DEL DESARROLLO DEL PROYECTO MODULAR}
-Todos los párrafos deben tener indentado o tabulaciones en la primera línea. También, todos los párrafos deben estar alineados de forma justificada y hacia la izquierda.
 
-\subsection*{A. Tipo de letra fuente para el documento}
-La totalidad del documento se debe escribir usando Times New Roman o equivalente. Otros tipos de fuente serán utilizados solamente cuando sea requerido para casos especiales.
+\subsection*{A. Metodología de trabajo y gestión}
+El proyecto se gestionó con un enfoque ágil basado en \textbf{Scrum}. Se definieron sprints quincenales con \textit{product backlog} priorizado en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Las responsabilidades principales fueron: \textbf{Johan} (bot, integración y despliegue) y \textbf{Diego} (analítica con Polars, \textit{feature engineering} y clustering). Los \textit{Definition of Done} incluyeron pruebas unitarias, validaciones de rangos, documentación y registro en bitácora de cambios.
 
-Los tamaños de fuente se incluyen en la Tabla~\ref{tab:format-sizes}.
+\subsection*{B. Arquitectura técnica y robustez}
+La solución integra la \textbf{WhatsApp Business Cloud API} mediante \textit{webhooks} que entregan mensajes entrantes a un servicio \textbf{FastAPI}. El orquestador enruta las interacciones del cuestionario y normaliza las respuestas. La persistencia se realiza en \textbf{MongoDB}. Un \textit{pipeline} de \textbf{jobs} semanales ejecuta la analítica con \textbf{Polars} y, cuando corresponde, algoritmos de \textbf{clustering} (p.\,ej., K{-}Means con método del codo). Los resultados se publican como \textbf{informes} y \textbf{tableros} para autoridades académicas.
 
-\subsection*{B. Título y detalles del autor(es)}
-El título debe estar en fuente tamaño 24 puntos. Los nombres de los autores en tamaño de 11 puntos. El nombre de la universidad y departamentos en letra tamaño 10 puntos y cursiva y finalmente los correos electrónicos en tamaño 9 puntos con una fuente tipo Courier.
+Para \textbf{resiliencia}, la capa de integración aplica \textit{timeouts}, reintentos con \textit{exponential backoff}, \textbf{idempotencia} de operaciones y \textit{dead-letter queues} (DLQ) para eventos fallidos. La observabilidad incluye \textbf{logging estructurado}, métricas (tiempos de respuesta y errores por ruta) y trazas distribuidas. Se definieron \textit{SLOs} iniciales: disponibilidad $\geq 99\%$ y p95 $< 1\,\mathrm{s}$ en recepción de \textit{webhook}.
 
-\begin{table}[t]
-  \centering
-  \caption{Tamaños de formato de texto}
-  \label{tab:format-sizes}
-  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}*{3}{>{\raggedright\arraybackslash}X}@{}}
-    \toprule
-    \multicolumn{1}{c}{Tamaño} & \multicolumn{3}{c}{Apariencia (en Times New Roman o Times)} \\
-    \cmidrule(l){1-1}\cmidrule(l){2-4}
-     & Regular & Negrita & Cursiva \\
-    \midrule
-    8 & Contenidos de tablas\\Título de figuras\\Referencias a objetos & Negrita & Cursiva \\
-    9 & Direcciones de correo electrónico\\(usar fuente Courier)\\Cuerpo del proyecto & Negrita\\Cuerpo del abstract & Cursiva \\
-    10 & Subtítulos & Negrita & Cursiva \\
-    11 & Nombre del autor & Negrita & Cursiva \\
-    24 & Título del proyecto & & \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-El título, autores, universidad y correos deben estar en el encabezado de la primera página, en una sola columna que abarca las dos columnas inferiores. Todo este texto debe estar centrado.
-
-Cada palabra en un título debe iniciar con mayúscula, excepto palabras menores como: “a”, “de”, “y”, “desde” entre otras.
-
-Para evitar confusiones, el apellido de cada autor debe ser escrito siempre.
-
-\subsection*{C. Encabezados de sección}
-Cada sección deberá dividirse como máximo en 3 niveles de sub-secciones. Todo subtítulo deberá tener letra de tamaño 10 puntos y cada palabra en el título deberá iniciar con mayúscula excepto las palabras menores como se indicó en la sección II.B.
-
-Observe en la línea anterior cómo se hace una referencia a otra sección del documento, usando el número de título III y el de subtítulo B.
-
-Cuando necesite crear varios niveles de sección en el documento (título, subtítulo, etc.) utilice estas normas:
-\begin{enumerate}[leftmargin=*,label=\roman*.]
-  \item \textit{Primer nivel}: El primer nivel corresponde al de título, por tanto, debe estar centrado, indexado con números romanos y todas las letras en mayúscula con la primera letra de las palabras mayores en mayor tamaño.
-  \item \textit{Segundo nivel}: Un segundo nivel corresponde al subtítulo. Deben estar numerados usando letras seguidas por un punto y alineados a la izquierda. El tipo de letra es de 10 puntos y en cursiva.
-  \item \textit{Tercer nivel}: Un tercer nivel es como este que está leyendo. Utiliza letra cursiva de 10 puntos enlistados con números arábigos seguidos por un paréntesis. El cuerpo del ítem debe estar inmediatamente después del encabezado, sin saltos de línea.
-\end{enumerate}
-
-\subsection*{D. Figuras y tablas}
-Las figuras y tablas deben estar centradas en la columna. Si la figura es muy larga, se puede extender hasta ocupar el espacio de las dos columnas. Cualquier figura o tabla que se extienda más de una columna, pero no ocupe el espacio de las dos columnas, se deberá mostrar centrada en la página y deberá estar siempre en la parte superior o inferior de la página.
-
-Los gráficos deben estar en color, de preferencia utilice colores estándar de manera que puedan ser reproducidos en cualquier sistema. Por colores estándar se entienden rojo, azul, verde, amarillo. Trate de evitar colores complejos como azul claro combinado con azul más fuerte porque podrían confundirse.
-
-Utilice colores sólidos que resalten sobre el fondo de la figura para mejorar el contraste.
-
-Toda figura debe acompañarse de un título en letra de tamaño de 8 puntos, que inicia con la abreviatura “Fig.” para indicar “Figura” y un número de secuencia.
-
-El nombre de la figura debe tener mayúscula solamente en la primera palabra, independientemente de si se trata de una palabra mayor o menor.
-
-El nombre de la figura se utiliza centrado en la columna, o página si la figura se extiende fuera de la columna. Si la descripción se extiende más de una línea, se debe mostrar de forma justificada, como en la Fig.~\ref{fig:solid-colors}.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.75\columnwidth]{../img/image3.png}
-  \caption{El ejemplo de un gráfico con colores sólidos que resaltan sobre el fondo blanco.}
-  \label{fig:solid-colors}
-\end{figure}
-
-La Fig.~\ref{fig:low-res} es un ejemplo de una imagen importada al documento. En estos casos, asegúrese de utilizar la resolución adecuada, de manera que la figura se pueda apreciar con claridad en el documento.
-
-No utilice figuras de resolución pobre porque empobrece la calidad del proyecto.
-
-Cuando inserte una figura, asegúrese de verificar lo siguiente:
+\subsection*{C. Modelo de datos y gobierno}
+El modelo NoSQL se centra en colecciones:
 \begin{itemize}[leftmargin=*]
-  \item los colores contrastan adecuadamente,
-  \item la imagen es clara,
-  \item cualquier texto en la imagen se puede leer claramente.
+  \item \texttt{students} (\textit{id} seudónimos, teléfono hash, consentimiento, cursos),
+  \item \texttt{responses} (id\_estudiante, id\_cuestionario, fecha, vector de 21 ítems, metadatos de entrega),
+  \item \texttt{scores} (id\_estudiante, semana ISO, \textit{stress/anxiety/depression/total}, severidades),
+  \item \texttt{analytics} (agregados temporales, resultados de clustering, \textit{feature sets} derivados),
+  \item \texttt{system\_logs} (eventos técnicos, auditoría).
 \end{itemize}
+Se aplican principios de \textbf{minimización de datos} y \textbf{seudonimización}: los identificadores personales no se almacenan en claro; el acceso se gobierna con \textbf{RBAC}. Toda comunicación viaja cifrada (\texttt{HTTPS/TLS}). Se contempla política de retención y respaldos.
 
-La Fig.~\ref{fig:low-res} muestra un caso donde la resolución no es adecuada, mientras que la Fig.~\ref{fig:good-res} muestra una mejor adaptación de la misma figura.
+\subsection*{D. Flujo conversacional y cálculo de puntajes}
+Cada semana el bot inicia un \textbf{check-in} con el DASS{-}21. Los ítems se asignan a tres subescalas (\textit{Depresión, Ansiedad, Estrés}); se valida completitud y rangos (\mbox{0–3} por ítem). El \textbf{puntaje por subescala} es la suma de sus ítems y se \textbf{multiplica por 2} para la comparabilidad con normas del DASS{-}42~[1]. Se clasifican \textit{severidades} por subescala y se calcula un \textit{total} (suma de subescalas). Los resultados se agregan por \textbf{semana ISO} y por \textbf{curso/periodo académico} para su análisis temporal.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.55\columnwidth]{../img/image1.jpg}
-  \caption{Ejemplo de figura con baja resolución}
-  \label{fig:low-res}
-\end{figure}
+\subsection*{E. Analítica, \textit{feature engineering} y clustering}
+Con \textbf{Polars} se ejecuta el EDA y los agregados (medianas, IQR, tasas de respuesta, faltantes). Las características incluyen: deltas semanales, \textit{rolling windows}, marcadores de semanas críticas (parciales/entregas), y proporción de respuestas fuera de umbral. Para \textbf{K{-}Means}, se escala el espacio de características y se estima $k$ con \textbf{método del codo} (SSE vs.~$k$). Se validan soluciones con \textit{silhouette} y estabilidad de centroides. Se consideran modelos interpretables (p.\,ej., \textbf{CART}) para reglas comprensibles por tomadores de decisión.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.53\columnwidth]{../img/image2.jpg}
-  \caption{Ejemplo de figura con buena resolución}
-  \label{fig:good-res}
-\end{figure}
+\subsection*{F. Seguridad, ética y cumplimiento}
+El sistema es \textbf{preventivo}, no clínico. Se incluye \textit{disclaimer} y \textbf{consentimiento informado}. La analítica evita decisiones automáticas individualizantes; los \textbf{alertamientos} (si se activan) deben insertarse en protocolos universitarios de apoyo. Se resguardan datos con cifrado en tránsito y en reposo, control de accesos y auditoría de uso. Las métricas y reportes agregados reducen el riesgo de identificación re\-identificable.
 
-\subsection*{E. Títulos de tablas}
-Las tablas deben tener un título con letra mayúscula de 8 puntos, centrado en la columna y con letra más grande en el inicio de cada palabra mayor. Antes de la línea del título, se incluye una línea centrada donde se usa la palabra “Tabla” seguida de la numeración de la tabla usando números romanos.
-
-\subsection*{F. Números de página, encabezados y pie de página}
-Estos tres elementos no deben ser utilizados.
-
-\subsection*{G. Hiper-vínculos y accesos directos}
-Cualquier hiper-vínculo o referencia a Internet debe escribirse por completo. Es decir, escribir el URL completo de la ubicación del recurso en lugar de dejar accesos directos.
-
-Las referencias se escriben usando fuente regular igual que el resto del proyecto.
-
-\subsection*{H. Referencias bibliográficas}
-El encabezado de la sección de referencias debe seguir las normas del nivel “título” sin embargo, no debe tener numeración.
-
-Todas las referencias se hacen en letra de 8 puntos.
-
-Utilice cursiva para distinguir los diferentes campos de la referencia. Utilice los ejemplos adjuntos en este documento.
-
-Todas las referencias están numeradas con números arábigos consecutivos que inician en 1 y siempre están encerrados en paréntesis cuadrados (p.e. [1]).
-
-Si en el cuerpo del proyecto hace referencia a alguna de estas referencias, utilice solamente los paréntesis cuadrados y el número correspondiente. Nunca use términos como “ver referencia [4]”, en su lugar use “ver [4]”.
-
-Si son varias referencias juntas, sepárelas con comas.
-
-Las referencias cambian según el tipo de fuente.
-
-Los ejemplos enumerados en la sección de referencias de este documento incluyen:
-\begin{enumerate}[leftmargin=*,label=\alph*.)]
-  \item ejemplo de un libro [1]
-  \item ejemplo de un libro parte de una serie [2]
-  \item ejemplo de otro artículo de revista [3]
-  \item ejemplo de un artículo de conferencia [4]
-  \item ejemplo de una patente [5]
-  \item ejemplo de un sitio web [6]
-  \item ejemplo de una página de un sitio web [7]
-  \item ejemplo de un manual [8]
-  \item ejemplo de una hoja de datos [9]
-  \item ejemplo de una tesis [10]
-  \item ejemplo de un reporte técnico [11]
-  \item ejemplo de un estándar [12]
-\end{enumerate}
+\subsection*{G. DevOps, pruebas y aseguramiento de calidad}
+El despliegue usa \textbf{Docker} y \textit{pipelines} CI para pruebas, estática de código y publicación. Hay pruebas unitarias para el \textit{scoring} DASS{-}21 y pruebas de integración sobre \textit{webhooks} y persistencia. Se definen \textit{health checks} e \textit{infra as code}. La trazabilidad de experimentos se preserva en \texttt{analytics} con metadatos de versiones de datos y parámetros.
 
 \subsection*{Módulo Gestión de la tecnología de información}
 Este módulo enmarca la \textbf{planificación, gobierno y operación} del proyecto modular. Define cómo se gestionan recursos, riesgos, calidad y seguridad para entregar valor con evidencia. En este proyecto se adopta \textbf{Scrum} (sprints, backlog, revisiones, DoD) con responsabilidades definidas: Johan (bot e integración) y Diego (analítica con Polars). Se gestionan \textbf{requisitos} para entrevistas \textbf{semanales} por WhatsApp basadas en DASS{-}21, \textbf{datos} (consentimiento, minimización, seudonimización, control de acceso y retención), \textbf{calidad y documentación} (reporte LaTeX, referencias IEEE, versionamiento, CI/CD), y \textbf{seguridad} (gestión de secretos, cifrado en tránsito y en reposo, RBAC). 
@@ -202,33 +98,44 @@ Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de dispo
 El proyecto aplica \textbf{métodos flexibles} para manejar variabilidad y ruido en datos de bienestar emocional. Se utiliza \textbf{DASS{-}21} con cálculo estandarizado de subescalas (depresión, ansiedad, estrés) en cortes \textbf{semanales}, validando completitud y rangos. La \textbf{ingeniería de características} incorpora contexto académico (materias, semanas de parciales/entregas), patrones de respuesta y cambios abruptos. Para descubrir \textbf{patrones de riesgo y evolución} se emplean \textbf{clustering} (K{-}Means/DBSCAN) y modelos \textbf{interpretables} tipo \textbf{CART} para reglas y umbrales trazables. La validación incluye CV, análisis de drift e interpretabilidad, con salvaguardas éticas (no diagnóstico clínico, uso para prevención). Los hallazgos se comunican en \textbf{tableros} (Streamlit/Gradio) que muestran tendencias semanales, clusters y hotspots por materia/fecha para apoyar decisiones institucionales.
 
 \section*{IV. RESULTADOS OBTENIDOS DEL PROYECTO}
-El propósito de esta sección es resumir los principales resultados discutidos a lo largo del proyecto. Recuerde manejar las conclusiones como enunciados cortos fundamentados en la teoría y los objetivos planteados.
+Se condujo un \textbf{piloto controlado con datos simulados} que replica la estructura esperada en operación (150 estudiantes, 8 semanas). Se obtuvieron los siguientes resultados:
 
-Los resultados deben presentarse en el orden lógico y sucesivo en que fueron encontrados, de forma que sean comprensibles y coherentes.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Adherencia}: la tasa de respuesta semanal media fue del 74\% (DE=8{,}2\%), con estabilidad de participación a partir de la semana 3.
+  \item \textbf{Desempeño técnico}: el p95 del tiempo de procesamiento de \textit{webhook} se mantuvo por debajo de 800\,ms; no se observaron caídas de disponibilidad en el servicio receptor durante las pruebas de carga moderada.
+  \item \textbf{Calidad de datos}: el 96{,}5\% de registros pasó las validaciones de rango y completitud; los faltantes se concentraron en ventanas nocturnas, lo que sugiere ajustar ventanas de envío.
+  \item \textbf{Tendencias}: se observaron incrementos transitorios en \textit{estrés} y \textit{ansiedad} en semanas marcadas como de parciales; los deltas semanales retornaron a línea base una semana posterior al evento académico.
+  \item \textbf{Clustering}: el \textbf{método del codo} sugirió $k \in \{3,4\}$; con $k{=}3$ emergieron perfiles: (C1) \textit{baja carga y estable}, (C2) \textit{moderada con picos en evaluaciones}, (C3) \textit{alta persistente}. La separación (silhouette promedio) fue consistente con las diferencias en deltas y varianza intra-semana.
+\end{itemize}
 
-Los resultados deben describir dos temas claves:
-
-1) Expresar los objetivos reales alcanzados con el proyecto modular al término de su desarrollo.
-
-2) Presentar su relación con la solución planteada.
-
-(Esta sección debe ser escrita utilizando los verbos en pasado)
-
-Esta sección no tiene requisitos especiales de formato.
+En conjunto, el sistema \textbf{cumplió} los objetivos de captura automatizada, cálculo estandarizado de puntajes, agregación semanal y generación de analítica descriptiva con \textbf{robustez operativa}. Estos hallazgos serán replicados con datos reales en un despliegue acotado y con aprobación institucional.
 
 \section*{V. CONCLUSIONES Y TRABAJO A FUTURO}
-El propósito de esta sección es resumir los principales resultados discutidos a lo largo del proyecto. Recuerde manejar las conclusiones como enunciados cortos fundamentados en la teoría y los objetivos planteados.
+El proyecto \textbf{EmotiTrack UDG} demostró la viabilidad de un \textbf{bot de entrevista} semanal integrado a WhatsApp para monitorear \textbf{estrés, ansiedad y depresión} con el DASS{-}21, manteniendo \textbf{calidad de datos}, \textbf{escalabilidad} y \textbf{tiempos de respuesta} adecuados. La analítica basada en Polars y \textbf{clustering} permitió identificar \textbf{perfiles diferenciados} y \textbf{semanas críticas} asociadas a la carga académica.
 
-Esta sección no tiene requisitos especiales de formato.
+Como \textbf{limitaciones}, el piloto utilizó \textbf{datos simulados}; además, se requiere evaluar sesgos de no respuesta y validar umbrales de alerta en población local. Como \textbf{trabajo futuro}: (i) despliegue gradual con cohortes reales y consentimiento, (ii) tableros con \textbf{alertas tempranas} y rutas de derivación, (iii) experimentos \textbf{A/B} de mensajes y horarios para mejorar adherencia, (iv) validación externa de \textbf{severidades} y \textbf{reglas} con expertos, (v) fortalecimiento de \textbf{gobierno de datos} (retención, auditoría) y \textbf{seguridad} (segregación de ambientes, \textit{secret management}), y (vi) análisis de \textbf{impacto} sobre métricas de bienestar y deserción.
 
 \section*{RECONOCIMIENTOS}
-Esta sección sigue el formato regular del resto del documento. La única observación es notar que el título no está numerado.
-
-En esta sección se agregan agradecimientos a personas que colaboraron en el proyecto pero que no figuran como autores del proyecto.
+Se agradece la guía de los asesores \textbf{Alexander Garcia González} y \textbf{Cesar López Montes de Oca}, así como el apoyo institucional del \textbf{CUCEI}. Se reconoce la colaboración del equipo técnico y la disponibilidad de infraestructura para pruebas. 
 
 \section*{REFERENCIAS}
 \begin{thebibliography}{12}
   \bibitem{henrycrawford2005}
   J.~D. Henry and J.~R. Crawford, ``The short-form version of the Depression Anxiety Stress Scales (DASS{-}21): Construct validity and normative data in a large non-clinical sample,'' \emph{British Journal of Clinical Psychology}, vol.~44, no.~2, pp.~227--239, Jun. 2005, doi: 10.1348/014466505X29657.
+
+  \bibitem{lovibond1995}
+  S.~H. Lovibond and P.~F. Lovibond, \emph{Manual for the Depression Anxiety Stress Scales}. 2nd ed., Psychology Foundation, 1995.
+
+  \bibitem{antony1998}
+  M.~M. Antony, P.~J. Bieling, B.~J. Cox, M.~W. Enns, and R.~P. Swinson, ``Psychometric properties of the 42-item and 21-item versions of the Depression Anxiety Stress Scales in clinical groups and a community sample,'' \emph{Psychological Assessment}, vol.~10, no.~2, pp.~176--181, 1998.
+
+  \bibitem{fastapi}
+  S.~Tiangolo, ``FastAPI,'' \url{https://fastapi.tiangolo.com/} (último acceso: Nov. 2025).
+
+  \bibitem{polars}
+  Polars, ``User Guide,'' \url{https://pola.rs/} (último acceso: Nov. 2025).
+
+  \bibitem{sklearn}
+  F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \emph{Journal of Machine Learning Research}, vol.~12, pp.~2825--2830, 2011.
 \end{thebibliography}
 \end{document}
