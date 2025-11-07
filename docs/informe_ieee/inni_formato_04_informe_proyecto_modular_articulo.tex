@@ -57,6 +57,49 @@ Para \textbf{minería de datos} y análisis semanal (EDA, \emph{feature engineer
 \subsubsection*{Limitaciones y medidas de mitigación}
 El DASS{-}21 es un \textbf{tamizaje dimensional} y no un diagnóstico clínico. Se recomienda: (i) incluir mensajes de \emph{disclaimer} en el bot, (ii) vigilar \emph{drift} y \emph{missingness} en los datos semanales, y (iii) acompañar con rutas de derivación cuando se observen puntajes elevados persistentes. Estas prácticas preservan la \textbf{utilidad preventiva} y la \textbf{responsabilidad ética} del sistema.
 
+\subsubsection*{Evidencia en universidades mexicanas}
+Se consultaron reportes recientes aplicados a poblaci\'{o}n universitaria en M\'{e}xico para asegurar \textbf{pertinencia contextual}. Un estudio psicom\'{e}trico con 135 estudiantes de ciencias de la salud en Veracruz (2024) confirm\'{o} la \textbf{estructura trifactorial} del DASS{-}21, document\'{o} la distribuci\'{o}n de \'{\i}tems por subescala y valid\'{o} el procedimiento de suma en escala Likert 0--3. De forma complementaria, un levantamiento transversal en la Universidad Aut\'{o}noma de Nuevo Le\'{o}n (2018, $n{=}520$) report\'{o} prevalencias de estr\'{e}s, ansiedad y depresi\'{o}n en estudiantes de nuevo ingreso y recalc\'{o} que los \textbf{puntajes del DASS{-}21 se multiplican por 2} para mantener comparabilidad con las normas del DASS{-}42. Estas fuentes respaldan el uso del instrumento en muestras \textbf{no cl\'{\i}nicas mexicanas} y alinean el flujo de c\'{a}lculo de EmotiTrack con pr\'{a}cticas locales.
+
+\subsubsection*{Procedimiento de c\'{a}lculo y puntos de corte}
+El bot implementa el protocolo de calificaci\'{o}n del DASS{-}21 conforme a las gu\'{\i}as can\'{o}nicas y a los estudios mexicanos consultados:
+\begin{enumerate}[leftmargin=*]
+  \item Cada \'{\i}tem se registra en escala Likert \textbf{0--3} (de ``No me ha ocurrido'' a ``Me ha ocurrido mucho'').
+  \item Por subescala (Depresi\'{o}n, Ansiedad, Estr\'{e}s) se \textbf{suman 7 \'{\i}tems} para obtener un puntaje bruto en el rango 0--21.
+  \item El puntaje bruto se \textbf{multiplica por 2} para homologarlo con el DASS{-}42 antes de clasificar la severidad.
+\end{enumerate}
+
+Los umbrales de severidad usados en la clasificaci\'{o}n autom\'{a}tica se resumen en la Tabla~\ref{tab:dass21_cutoffs}, mientras que la Tabla~\ref{tab:dass21_items} documenta la asignaci\'{o}n de \'{\i}tems por subescala para garantizar reproducibilidad en el pipeline.
+
+\begin{table}[t]
+  \centering
+  \caption{Puntos de corte DASS{-}21 (puntajes multiplicados por 2).}
+  \label{tab:dass21_cutoffs}
+  \begin{tabular}{lccccc}
+    \toprule
+    \textbf{Subescala} & \textbf{Normal} & \textbf{Leve} & \textbf{Moderada} & \textbf{Severa} & \textbf{Extrema} \\
+    \midrule
+    Depresi\'{o}n & 0--9 & 10--13 & 14--20 & 21--27 & $\geq$28 \\
+    Ansiedad & 0--7 & 8--9 & 10--14 & 15--19 & $\geq$20 \\
+    Estr\'{e}s & 0--14 & 15--18 & 19--25 & 26--33 & $\geq$34 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Asignaci\'{o}n de \'{\i}tems del DASS{-}21 por subescala.}
+  \label{tab:dass21_items}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Subescala} & \textbf{\'{I}tems} \\
+    \midrule
+    Depresi\'{o}n & 3, 5, 10, 13, 16, 17, 21 \\
+    Ansiedad & 2, 4, 7, 9, 15, 19, 20 \\
+    Estr\'{e}s & 1, 6, 8, 11, 12, 14, 18 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \section*{III. DESCRIPCIÓN DEL DESARROLLO DEL PROYECTO MODULAR}
 
 En esta etapa se ejecut\'{o} una prueba de concepto que automatiz\'{o} el env\'{\i}o y la ingesta semanal de 100 respuestas DASS{-}21 mediante el bot de WhatsApp, FastAPI y los \emph{pipelines} de anal\'{\i}tica. El escenario simulado preserv\'{o} los criterios de completitud, trazabilidad y seguridad previstos para operaci\'{o}n, por lo que funciona como validaci\'{o}n integral del \emph{stack} t\'{e}cnico.
