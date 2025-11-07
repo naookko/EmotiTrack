@@ -105,7 +105,24 @@ Los umbrales de severidad usados en la clasificaci\'{o}n autom\'{a}tica se resum
 En esta etapa se ejecut\'{o} una prueba de concepto que automatiz\'{o} el env\'{\i}o y la ingesta semanal de 100 respuestas DASS{-}21 mediante el bot de WhatsApp, FastAPI y los \emph{pipelines} de anal\'{\i}tica. El escenario simulado preserv\'{o} los criterios de completitud, trazabilidad y seguridad previstos para operaci\'{o}n, por lo que funciona como validaci\'{o}n integral del \emph{stack} t\'{e}cnico.
 
 \subsection*{A. Metodología de trabajo y gestión}
-El proyecto se gestionó con un enfoque ágil basado en \textbf{Scrum}. Se definieron sprints quincenales con \textit{product backlog} priorizado en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Las responsabilidades principales fueron: \textbf{Johan} (bot, integración y despliegue) y \textbf{Diego} (analítica con Polars, \textit{feature engineering} y clustering). Los \textit{Definition of Done} incluyeron pruebas unitarias, validaciones de rangos, documentación y registro en bitácora de cambios.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{./img/timelineAgile.jpg}
+  \caption{Cronograma ágil exportado desde Jira (Sprints Modular UDG).}
+  \label{fig:timeline_agile}
+\end{figure}
+El proyecto se gestionó con \textbf{Scrum} soportado en \textbf{Jira Software}, lo que centralizó backlog, tablero y métricas operativas. La Figura~\ref{fig:timeline_agile} cubre 71 días (3~de septiembre al 7~de noviembre) donde se solapan cinco épicas; el CSV \texttt{udg\_modular\_2025-11-07\_10.53am} contabiliza 40 issues con 27 (\(68\%\)) en \textit{Done}, tiempo de ciclo promedio de 10.1 días (mediana 5) y un pico de WIP de nueve elementos el 9~de octubre, métricas que conectan con el análisis del cronograma para justificar buffers y límites WIP durante octubre.
+
+La Figura~\ref{fig:graph_agile}, que muestra el \textbf{Cumulative Flow Diagram} exportado desde Jira, evidencia la madurez del flujo: se parte de 45 tareas base en la primera quincena, el backlog crece hasta \textasciitilde{}70 ítems en octubre por nuevas historias de integración (\texttt{UDGMOD-74}) y la franja \textit{Done} supera el 65\% en la primera semana de noviembre. El WIP se mantuvo delgado ($\leq 3$ tareas por persona) y el \textit{throughput} se estabilizó en 3--5 cierres semanales, lo que respalda la combinación Scrum/Kanban descrita en \texttt{analisis\_agil\_emotitrack.md} y la pertinencia de Jira para monitorear CFD, \textit{lead time} y \textit{control charts}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{./img/graphToDoDone.jpg}
+  \caption{Gráfica de tareas por realizar contra completadas.}
+  \label{fig:graph_agile}
+\end{figure}
+
+El \textit{product backlog} se priorizó en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Jira justificó su adopción al ofrecer tableros Scrum, límites visuales de WIP, exportaciones CSV y \textit{timelines} que facilitaron \textit{dailies} de 15 minutos, revisiones de sprint y trazabilidad de dependencias (p.\,ej., UDGMOD{-}74 depende de UDGMOD{-}2 y UDGMOD{-}4). Las responsabilidades principales fueron \textbf{Johan} (bot, integración, despliegues) y \textbf{Diego} (analítica con Polars, \textit{feature engineering}, clustering), mientras que los \textit{Definition of Done} exigieron pruebas unitarias, validaciones de rangos, documentación y registro en bitácora dentro de Jira.
 
 \subsection*{B. Arquitectura técnica y robustez}
 La solución integra la \textbf{WhatsApp Business Cloud API} mediante \textit{webhooks} que entregan mensajes entrantes a un servicio \textbf{FastAPI}. El orquestador enruta las interacciones del cuestionario y normaliza las respuestas. La persistencia se realiza en \textbf{MongoDB}. Un \textit{pipeline} de \textbf{jobs} semanales ejecuta la analítica con \textbf{Polars} y, cuando corresponde, algoritmos de \textbf{clustering} (p.\,ej., K{-}Means con método del codo). Los resultados se publican como \textbf{informes} y \textbf{tableros} para autoridades académicas.
