@@ -11,6 +11,7 @@ from ..models import FlowSession, WebhookLog
 from ..repositories.log_repository import LogRepository
 from .chat_bot_api_client import ChatBotApiClient
 from .flow_engine import FlowEngine, FlowResponse
+from .simulation_manager import SimulationManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,11 +29,13 @@ class WebhookService:
         flow_engine: FlowEngine,
         chat_api: ChatBotApiClient,
         *,
+        simulation_manager: Optional[SimulationManager] = None,
         questionnaire_timeout_minutes: int = 1,
     ) -> None:
         self._repository = repository
         self._flow_engine = flow_engine
         self._chat_api = chat_api
+        self._simulation = simulation_manager
         self._questionnaire_timeout = timedelta(minutes=max(1, questionnaire_timeout_minutes))
 
     def process_webhook(self, payload: Dict[str, Any]) -> List[WebhookLog]:
@@ -54,10 +57,10 @@ class WebhookService:
             result = self._log_event(event_type, value, item)
             if not result:
                 continue
-            log_entry, student = result
+            log_entry, student, storage_wa_id = result
             logs.append(log_entry)
             if event_type == "message":
-                self._handle_message_event(log_entry, item, student)
+                self._handle_message_event(log_entry, item, student, storage_wa_id)
         return logs
 
     def recent_logs(self, limit: int = 20) -> List[WebhookLog]:
@@ -68,16 +71,19 @@ class WebhookService:
         log_entry: WebhookLog,
         item: Dict[str, Any],
         student: Optional[Dict[str, Any]],
+        storage_wa_id: str,
     ) -> None:
         wa_id = log_entry.wa_id
+        target_wa_id = storage_wa_id or wa_id
         if student is None:
             try:
-                self._chat_api.create_student(wa_id)
-                LOGGER.info("Registered new student for wa_id=%s", wa_id)
+                self._chat_api.create_student(target_wa_id)
+                LOGGER.info("Registered new student for wa_id=%s (storage=%s)", wa_id, target_wa_id)
             except Exception:
-                LOGGER.exception("Failed to create student for wa_id=%s", wa_id)
+                LOGGER.exception("Failed to create student for wa_id=%s (storage=%s)", wa_id, target_wa_id)
                 return
-            self._flow_engine.ensure_session(self.START_FLOW, wa_id)
+            context_overrides = self._simulation_context_overrides(target_wa_id, wa_id)
+            self._flow_engine.ensure_session(self.START_FLOW, wa_id, context_overrides=context_overrides)
             return
 
         response = self._parse_flow_response(item)
@@ -86,8 +92,10 @@ class WebhookService:
             return
 
         session = self._resolve_session_for_response(wa_id)
+        if session:
+            session = self._ensure_session_has_alias(session, target_wa_id)
         if not session:
-            session = self._ensure_default_session(wa_id, student)
+            session = self._ensure_default_session(wa_id, target_wa_id, student)
             if not session:
                 LOGGER.debug("No session available to handle response for wa_id=%s", wa_id)
                 return
@@ -95,51 +103,74 @@ class WebhookService:
         updated_session = self._flow_engine.handle_response(session, response)
         self._after_progress(updated_session)
 
+    def _simulation_context_overrides(self, storage_wa_id: str, wa_id: str) -> Optional[Dict[str, Any]]:
+        if not storage_wa_id or storage_wa_id == wa_id:
+            return None
+        return {self._flow_engine.SIMULATION_WA_ID_KEY: storage_wa_id}
+
+    def _ensure_session_has_alias(self, session: FlowSession, storage_wa_id: str) -> FlowSession:
+        if not storage_wa_id or storage_wa_id == session.wa_id:
+            return session
+        current = session.context.get(self._flow_engine.SIMULATION_WA_ID_KEY)
+        if current == storage_wa_id:
+            return session
+        context = dict(session.context)
+        context[self._flow_engine.SIMULATION_WA_ID_KEY] = storage_wa_id
+        return self._flow_engine.repository.save_progress(session, context=context)
+
     def _ensure_default_session(
         self,
         wa_id: str,
+        storage_wa_id: str,
         student: Dict[str, Any],
     ) -> Optional[FlowSession]:
         consent = bool(student.get("consent_accepted"))
         if not consent:
             LOGGER.info("Ensuring start flow for wa_id=%s", wa_id)
-            return self._flow_engine.ensure_session(self.START_FLOW, wa_id)
+            context_overrides = self._simulation_context_overrides(storage_wa_id, wa_id)
+            return self._flow_engine.ensure_session(self.START_FLOW, wa_id, context_overrides=context_overrides)
         LOGGER.info("Ensuring questionnaire flow for wa_id=%s", wa_id)
-        return self._ensure_questionnaire_session(wa_id)
+        return self._ensure_questionnaire_session(wa_id, storage_wa_id)
 
-    def _ensure_questionnaire_session(self, wa_id: str) -> Optional[FlowSession]:
+    def _ensure_questionnaire_session(self, wa_id: str, storage_wa_id: str) -> Optional[FlowSession]:
         try:
-            latest = self._chat_api.latest_questionnaire(wa_id)
+            latest = self._chat_api.latest_questionnaire(storage_wa_id)
         except Exception:
-            LOGGER.exception("Failed to fetch questionnaire for wa_id=%s", wa_id)
+            LOGGER.exception("Failed to fetch questionnaire for wa_id=%s (storage=%s)", wa_id, storage_wa_id)
             return None
         if not latest:
-            LOGGER.warning("No questionnaire found for wa_id=%s", wa_id)
+            LOGGER.warning("No questionnaire found for wa_id=%s (storage=%s)", wa_id, storage_wa_id)
             return None
         answers = latest.get("answer") or {}
         questionnaire_id = latest.get("questionnaire_id")
         if questionnaire_id is None:
             LOGGER.warning(
-                "Questionnaire lacks identifier for wa_id=%s; running flow without persistence",
+                "Questionnaire lacks identifier for wa_id=%s (storage=%s); running flow without persistence",
                 wa_id,
+                storage_wa_id,
             )
         restart_required = False
         next_step_id = self._next_question_step(answers)
         if not next_step_id and self._questionnaire_expired(latest):
             LOGGER.info(
-                "Questionnaire expired after completion; resetting for wa_id=%s", wa_id
+                "Questionnaire expired after completion; resetting for wa_id=%s (storage=%s)",
+                wa_id,
+                storage_wa_id,
             )
             answers = {}
             next_step_id = self._next_question_step(answers)
             restart_required = True
         if not next_step_id:
-            LOGGER.info("Questionnaire already complete for wa_id=%s", wa_id)
+            LOGGER.info("Questionnaire already complete for wa_id=%s (storage=%s)", wa_id, storage_wa_id)
             return None
         last_index = self._last_answered_step_index(answers)
         context_overrides = {
             self._flow_engine.ANSWERS_KEY: answers,
             self._flow_engine.CURRENT_STEP_KEY: self._last_answered_step_id(answers),
         }
+        simulation_override = self._simulation_context_overrides(storage_wa_id, wa_id)
+        if simulation_override:
+            context_overrides.update(simulation_override)
         variables = {"questionnaire_id": questionnaire_id} if questionnaire_id is not None else {}
         session = self._flow_engine.ensure_session(
             self.DASS_FLOW,
@@ -234,13 +265,14 @@ class WebhookService:
             return None
         return str(questionnaire_id)
 
-    def _trigger_score_calculation(self, wa_id: str, questionnaire_id: str) -> None:
+    def _trigger_score_calculation(self, storage_wa_id: str, questionnaire_id: str) -> None:
         try:
-            self._chat_api.calculate_questionnaire(wa_id, questionnaire_id)
+            self._chat_api.calculate_questionnaire(storage_wa_id, questionnaire_id)
         except Exception:
             LOGGER.exception(
-                "Failed to trigger DASS calculation for questionnaire_id=%s",
+                "Failed to trigger DASS calculation for questionnaire_id=%s (storage=%s)",
                 questionnaire_id,
+                storage_wa_id,
             )
 
     def _send_score_summary(self, wa_id: str, questionnaire_id: str) -> None:
@@ -281,11 +313,12 @@ class WebhookService:
         return "\n".join(lines)
 
     def _after_progress(self, session: FlowSession) -> None:
+        storage_wa_id = self._session_storage_wa_id(session)
         if session.flow_name == self.START_FLOW and not session.is_active:
             answers = session.context.get(self._flow_engine.ANSWERS_KEY, {})
             consent = (answers.get("consent") or {}).get("value")
             if consent == "consent_yes":
-                self._ensure_questionnaire_session(session.wa_id)
+                self._ensure_questionnaire_session(session.wa_id, storage_wa_id)
             return
         if session.flow_name == self.DASS_FLOW and not session.is_active:
             LOGGER.info("Completed questionnaire flow for wa_id=%s", session.wa_id)
@@ -300,24 +333,36 @@ class WebhookService:
                     session.wa_id,
                 )
                 return
-            self._trigger_score_calculation(session.wa_id, questionnaire_id)
+            self._trigger_score_calculation(storage_wa_id, questionnaire_id)
             self._send_score_summary(session.wa_id, questionnaire_id)
+            self._release_simulation_alias(storage_wa_id)
+    def _session_storage_wa_id(self, session: FlowSession) -> str:
+        if not session.context:
+            return session.wa_id
+        alias = session.context.get(self._flow_engine.SIMULATION_WA_ID_KEY)
+        return alias or session.wa_id
+
+    def _release_simulation_alias(self, storage_wa_id: str) -> None:
+        if not self._simulation or not storage_wa_id:
+            return
+        self._simulation.release_alias(storage_wa_id)
 
     def _log_event(
         self,
         event_type: str,
         value: Dict[str, Any],
         item: Dict[str, Any],
-    ) -> Optional[Tuple[WebhookLog, Optional[Dict[str, Any]]]]:
+    ) -> Optional[Tuple[WebhookLog, Optional[Dict[str, Any]], str]]:
         wa_id = self._resolve_wa_id(event_type, item)
         if not wa_id:
             LOGGER.warning("Could not resolve wa_id for event %s; using default", event_type)
             wa_id = self.DEFAULT_WA_ID
+        storage_wa_id = self._storage_wa_id_for_event(wa_id, allocate=event_type == "message")
         student: Optional[Dict[str, Any]] = None
         try:
-            student = self._chat_api.get_student(wa_id)
+            student = self._chat_api.get_student(storage_wa_id)
         except Exception:
-            LOGGER.exception("Failed to consult student with wa_id=%s", wa_id)
+            LOGGER.exception("Failed to consult student with wa_id=%s (storage=%s)", wa_id, storage_wa_id)
         input_phone = value.get("metadata", {}).get("display_phone_number") or value.get("metadata", {}).get("phone_number_id", "")
         message_text = self._extract_message_text(event_type, item)
         status_text = self._extract_status_text(event_type, item)
@@ -331,8 +376,8 @@ class WebhookService:
             timestamp=timestamp,
         )
         self._repository.save_webhook_log(log_entry)
-        LOGGER.info("Logged %s event for %s", event_type, wa_id)
-        return log_entry, student
+        LOGGER.info("Logged %s event for %s (storage=%s)", event_type, wa_id, storage_wa_id)
+        return log_entry, student, storage_wa_id
 
     def _parse_flow_response(self, message: Dict[str, Any]) -> Optional[FlowResponse]:
         message_type = message.get("type")
@@ -367,6 +412,11 @@ class WebhookService:
                 received_at=received_at,
             )
         return None
+
+    def _storage_wa_id_for_event(self, wa_id: str, *, allocate: bool) -> str:
+        if not self._simulation:
+            return wa_id
+        return self._simulation.resolve_storage_wa_id(wa_id, allocate=allocate)
 
     def _resolve_wa_id(self, event_type: str, item: Dict[str, Any]) -> Optional[str]:
         if event_type == "message":

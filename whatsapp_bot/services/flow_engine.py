@@ -83,6 +83,7 @@ class FlowEngine:
     CURRENT_STEP_KEY = "current_step"
     EXPECTED_KEY = "expected_response"
     VARIABLES_KEY = "variables"
+    SIMULATION_WA_ID_KEY = "simulation_wa_id"
 
     def __init__(
         self,

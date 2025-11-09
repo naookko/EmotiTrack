@@ -15,6 +15,7 @@ from whatsapp_bot.services.chat_bot_api_client import ChatBotApiClient
 from whatsapp_bot.services.flow_engine import FlowEngine
 from whatsapp_bot.services.webhook_service import WebhookService
 from whatsapp_bot.services.whatsapp_client import WhatsAppClient
+from whatsapp_bot.services.simulation_manager import SimulationManager
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -25,11 +26,17 @@ log_repository = LogRepository()
 flow_repository = FlowRepository()
 whatsapp_client = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id)
 chat_bot_api = ChatBotApiClient(settings.chat_bot_api_url)
+simulation_manager = SimulationManager(
+    chat_bot_api,
+    real_wa_id=settings.simulation_real_wa_id,
+    wa_ids_path=settings.simulation_wha_ids_file,
+)
 
 
 def _record_answer(session, step, response, answer_payload) -> None:
     """Synchronise flow answers with the chat bot API."""
 
+    storage_wa_id = session.context.get(FlowEngine.SIMULATION_WA_ID_KEY) or session.wa_id
     if not step.answer_key:
         return
     try:
@@ -48,7 +55,7 @@ def _record_answer(session, step, response, answer_payload) -> None:
             elif step.answer_key == "career":
                 updates["career"] = answer_payload.get("display") or answer_payload.get("value")
             if updates:
-                chat_bot_api.update_student_fields(session.wa_id, **updates)
+                chat_bot_api.update_student_fields(storage_wa_id, **updates)
         elif session.flow_name == WebhookService.DASS_FLOW:
             allowed_values = {
                 str(row.get("id"))
@@ -63,7 +70,7 @@ def _record_answer(session, step, response, answer_payload) -> None:
             questionnaire_id = variables.get("questionnaire_id")
             if questionnaire_id:
                 chat_bot_api.update_questionnaire_answers(
-                    session.wa_id,
+                    storage_wa_id,
                     str(questionnaire_id),
                     {step.answer_key: answer_payload},
                 )
@@ -81,6 +88,7 @@ webhook_service = WebhookService(
     log_repository,
     flow_engine,
     chat_bot_api,
+    simulation_manager=simulation_manager,
     questionnaire_timeout_minutes=settings.questionnaire_timeout_minutes,
 )
 
