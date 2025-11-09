@@ -7,6 +7,7 @@ from pymongo import MongoClient
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB = os.environ.get("MONGO_DB", "chat_bot")
 MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION", "responses")
+WEEK_RESULTS_COLLECTION = os.environ.get("WEEK_RESULTS_COLLECTION", "dass21weekresults")
 OUTPUT_BASE_PATH = os.path.join("kmeans_result_vault")
 WEEK_HISTORY_PATH = os.path.join(OUTPUT_BASE_PATH, "week_history.txt")
 
@@ -321,3 +322,32 @@ with open(result_path, "w") as f:
     json.dump(result, f, indent=2)
 
 print(f"\n🎯 Resultados guardados en '{result_path}'")
+
+week_document = {
+    "week_start_date": week_start_date.isoformat(),
+    "week_end_date": week_end_date.isoformat(),
+    "run_date": run_datetime,
+    "is_active_week": week_start_date <= today <= week_end_date,
+    "optimal_k": optimal_k,
+    "sse_values": [{"k": int(k), "sse": float(s)} for k, s in sse_values],
+    "centroids": centroids,
+    "clusters": result,
+    "outputs": {
+        "elbow_chart": elbow_path,
+        "clusters_chart": clusters_3d_path,
+        "distribution_chart": distribution_path,
+        "analytics_json": result_path,
+    },
+}
+
+with MongoClient(MONGO_URI) as client:
+    week_results = client[MONGO_DB][WEEK_RESULTS_COLLECTION]
+    week_filter = {"week_start_date": week_document["week_start_date"]}
+    existing_week = week_results.find_one(week_filter)
+    is_active_week = week_document["is_active_week"]
+    if existing_week and not is_active_week:
+        print("INFO: Semana ya cerrada; se conservan resultados previos en MongoDB.")
+    else:
+        week_results.replace_one(week_filter, week_document, upsert=True)
+        action = "actualizados" if existing_week else "insertados"
+        print(f"📊 Resultados {action} en MongoDB (colección '{WEEK_RESULTS_COLLECTION}').")
