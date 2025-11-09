@@ -64,6 +64,23 @@ with MongoClient(MONGO_URI) as client:
         created_at = cleaned.get("created_at")
         if isinstance(created_at, datetime):
             cleaned["created_at"] = created_at
+
+        total_score = cleaned.get("total_score")
+        stress = cleaned.get("stress_score")
+        anxiety = cleaned.get("anxiety_score")
+        depression = cleaned.get("depression_score")
+        try:
+            total_score_value = float(total_score)
+        except (TypeError, ValueError):
+            continue
+        if (
+            total_score_value < 0
+            or stress is None
+            or anxiety is None
+            or depression is None
+        ):
+            continue
+        cleaned["total_score"] = total_score_value
         data.append(cleaned)
 
 run_datetime = datetime.utcnow()
@@ -86,8 +103,8 @@ with open(WEEK_HISTORY_PATH, "w", encoding="utf-8") as history_file:
     history_file.write(f"started_date: {week_start_date}, end_date: {week_end_date}\n")
 
 if not data:
-    print(f"⚠️  No se encontraron datos en MongoDB para la semana {week_start_date} - {week_end_date}.")
-    print(f"📁 Carpeta vacía creada en {run_output_dir}.")
+    print(f"WARNING: No se encontraron cuestionarios completos (total_score >= 0) en MongoDB para la semana {week_start_date} - {week_end_date}.")
+    print(f"INFO: Carpeta vacia creada en {run_output_dir}.")
     raise SystemExit(0)
 
 # Crear DataFrame Polars
