@@ -5,6 +5,7 @@
 \usepackage[letterpaper,top=0.75in,bottom=1in,left=0.68in,right=0.68in]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -17,6 +18,7 @@
 \captionsetup{font={small},labelfont=bf}
 \sethlcolor{yellow}
 \begin{document}
+\pagestyle{empty}
 \twocolumn[
   \begin{center}
     {\fontsize{24}{28}\selectfont\textbf{EmotiTrack UDG (162/2025)}\par}\vspace{0.6ex}
@@ -41,7 +43,9 @@ EmotiTrack UDG es una aplicación modular diseñada para registrar, monitorear y
 
 La fase actual corresponde a una \textbf{prueba de concepto} que utiliza \emph{mock data} para generar 100 cuestionarios semanales durante cuatro semanas. Este dise\~{n}o permite validar de extremo a extremo la captura conversacional, el c\'{a}lculo de puntajes DASS{-}21 y la anal\'{\i}tica basada en cl\'{u}steres antes de interactuar con cohortes reales.
 
-\section*{II. Justificación del uso de DASS{-}21 frente a alternativas}
+\section*{II. TRABAJOS RELACIONADOS}
+
+\subsection*{A. Justificación del uso de DASS{-}21 frente a alternativas}
 
 \textbf{Resumen.} Para un bot de entrevista por WhatsApp con \emph{check-ins semanales}, el DASS{-}21 ofrece un balance óptimo entre \emph{brevedad operativa} y \emph{propiedades psicométricas} sólidas. La evidencia empírica muestra que el DASS{-}21 mantiene alta confiabilidad y validez de constructo, presenta una estructura factorial más “limpia” que el DASS{-}42 y permite la equivalencia práctica de puntajes al duplicar las puntuaciones crudas para comparabilidad con normas del instrumento completo~[1].
 
@@ -122,7 +126,7 @@ La Figura~\ref{fig:graph_agile}, que muestra el \textbf{Cumulative Flow Diagram}
   \label{fig:graph_agile}
 \end{figure}
 
-El \textit{product backlog} se priorizó en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Jira justificó su adopción al ofrecer tableros Scrum, límites visuales de WIP, exportaciones CSV y \textit{timelines} que facilitaron \textit{dailies} de 15 minutos, revisiones de sprint y trazabilidad de dependencias (p.\,ej., UDGMOD{-}74 depende de UDGMOD{-}2 y UDGMOD{-}4). Las responsabilidades principales fueron \textbf{Johan} (bot, integración, despliegues) y \textbf{Diego} (analítica con Polars, \textit{feature engineering}, clustering), mientras que los \textit{Definition of Done} exigieron pruebas unitarias, validaciones de rangos, documentación y registro en bitácora dentro de Jira.
+El \textit{product backlog} se priorizó en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Jira justificó su adopción al ofrecer tableros Scrum, límites visuales de WIP, exportaciones CSV y \textit{timelines} que facilitaron \textit{ stand-up meetings} de 15 minutos, revisiones de sprint y trazabilidad de dependencias (p.\,ej., UDGMOD{-}74 depende de UDGMOD{-}2 y UDGMOD{-}4). Las responsabilidades principales fueron \textbf{Johan} (bot, integración, despliegues) y \textbf{Diego} (analítica con Polars, \textit{feature engineering}, clustering), mientras que los \textit{Definition of Done} exigieron pruebas funcionales, validaciones de rangos, documentación y registro en bitácora dentro de Jira.
 
 \subsection*{B. Arquitectura técnica y robustez}
 La solución integra la \textbf{WhatsApp Business Cloud API} mediante \textit{webhooks} que entregan mensajes entrantes a un servicio \textbf{FastAPI}. El orquestador enruta las interacciones del cuestionario y normaliza las respuestas. La persistencia se realiza en \textbf{MongoDB}. Un \textit{pipeline} de \textbf{jobs} semanales ejecuta la analítica con \textbf{Polars} y, cuando corresponde, algoritmos de \textbf{clustering} (p.\,ej., K{-}Means con método del codo). Los resultados se publican como \textbf{informes} y \textbf{tableros} para autoridades académicas.
@@ -209,6 +213,33 @@ Para documentar el comportamiento de una semana representativa (semana 3 de la s
   \caption{Semana 3 de la prueba de concepto. Izquierda: m\'{e}todo del codo (SSE por $k$). Derecha: clusters 3D (estr\'{e}s, ansiedad, depresi\'{o}n) calculados con K{-}Means ($k{=}3$).}
   \label{fig:elbow}
 \end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/dass_total_distribution.png}
+  \caption{Distribución de Puntuaciones Totales (DASS-21) en la semana analizada.}
+  \label{fig:dass_total_dist}
+\end{figure}
+
+La distribución del puntaje total permite evaluar \textbf{tendencia central, dispersión y colas}, indicadores clave para dimensionar el \textbf{riesgo agregado} de la cohorte y detectar \textbf{asimetrías} (p.\,ej., acumulación en rangos moderados o presencia de una cola derecha con valores altos). Esta lectura sustenta umbrales de alerta y la necesidad de intervenciones a nivel grupo cuando se observan desplazamientos respecto a semanas previas.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/dass_subscales_boxplot.png}
+  \caption{Distribución de subescalas DASS-21 (Estrés, Ansiedad, Depresión).}
+  \label{fig:dass_subscale_box}
+\end{figure}
+
+El boxplot comparativo revela \textbf{dispersión, mediana y valores atípicos} por subescala, diferenciando patrones entre \textbf{estrés, ansiedad y depresión}. Esta comparación es útil para \textbf{priorizar acciones}: por ejemplo, si la subescala de estrés muestra mayor IQR o más outliers, conviene dirigir primero recursos a \textit{manejo de carga académica} antes que a intervenciones focalizadas en ansiedad o depresión. Además, la estabilidad de estas formas semana a semana es un \textbf{indicador de deriva} del sistema.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/top15_total_score.png}
+  \caption{Top 15 estudiantes por puntuación total (DASS-21).}
+  \label{fig:top15_total}
+\end{figure}
+
+El \textit{Top 15} identifica casos con \textbf{mayor carga sintomática} en el corte semanal, lo que habilita \textbf{rutas de seguimiento} bajo las políticas de acceso y seudonimización del panel. Su uso es \textbf{preventivo y no clínico}: sirve para priorizar \textbf{contacto proactivo} o \textbf{apoyos académicos} cuando los puntajes altos son \textbf{persistentes} en múltiples semanas o coinciden con subidas en la severidad. En el tablero, esta lista debe restringirse por \textbf{rol/permisos} y operar sobre \textbf{identificadores seudónimos}, evitando datos nominativos.
 
 En conjunto, la prueba de concepto \textbf{confirm\'{o}} los objetivos de captura automatizada, c\'{a}lculo estandarizado de puntajes, agregaci\'{o}n semanal y generaci\'{o}n de cl\'{u}steres interpretables con \textbf{robustez operativa}. Estos hallazgos preparan el despliegue con datos reales una vez obtenidas las autorizaciones institucionales.
 
