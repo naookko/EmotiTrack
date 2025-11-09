@@ -6,7 +6,8 @@ docs/informe_ieee/*
 
 *__pycache__/
 *.pyc
-**/venv/
+**/kmeans_result_vault
+**/.venv
 
 *.env
 *.sqlite3
