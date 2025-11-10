@@ -1,6 +1,7 @@
 import polars as pl
 import json, math, random, os, shutil
 from datetime import datetime, timedelta, date
+from pathlib import Path
 import matplotlib.pyplot as plt
 from pymongo import MongoClient
 
@@ -8,8 +9,9 @@ MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB = os.environ.get("MONGO_DB", "chat_bot")
 MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION", "responses")
 WEEK_RESULTS_COLLECTION = os.environ.get("WEEK_RESULTS_COLLECTION", "dass21weekresults")
-OUTPUT_BASE_PATH = os.path.join("kmeans_result_vault")
-WEEK_HISTORY_PATH = os.path.join(OUTPUT_BASE_PATH, "week_history.txt")
+SCRIPT_DIR = Path(__file__).resolve().parent
+OUTPUT_BASE_PATH = SCRIPT_DIR / "kmeans_result_vault"
+WEEK_HISTORY_PATH = OUTPUT_BASE_PATH / "week_history.txt"
 
 
 def read_last_week_entry():
@@ -85,20 +87,20 @@ with MongoClient(MONGO_URI) as client:
         data.append(cleaned)
 
 run_datetime = datetime.utcnow()
-os.makedirs(OUTPUT_BASE_PATH, exist_ok=True)
-run_output_dir = os.path.join(OUTPUT_BASE_PATH, f"{week_start_date}-{week_end_date}")
-if os.path.isdir(run_output_dir):
+OUTPUT_BASE_PATH.mkdir(parents=True, exist_ok=True)
+run_output_dir = OUTPUT_BASE_PATH / f"{week_start_date}-{week_end_date}"
+if run_output_dir.exists():
     shutil.rmtree(run_output_dir)
-os.makedirs(run_output_dir, exist_ok=True)
+run_output_dir.mkdir(parents=True, exist_ok=True)
 
 history_lines = []
-if os.path.exists(WEEK_HISTORY_PATH):
-    with open(WEEK_HISTORY_PATH, "r", encoding="utf-8") as history_file:
+if WEEK_HISTORY_PATH.exists():
+    with WEEK_HISTORY_PATH.open("r", encoding="utf-8") as history_file:
         history_lines = [
             line.strip() for line in history_file
             if line.strip() and not line.startswith(f"started_date: {week_start_date}")
         ]
-with open(WEEK_HISTORY_PATH, "w", encoding="utf-8") as history_file:
+with WEEK_HISTORY_PATH.open("w", encoding="utf-8") as history_file:
     for line in history_lines:
         history_file.write(line + "\n")
     history_file.write(f"started_date: {week_start_date}, end_date: {week_end_date}\n")
@@ -218,9 +220,9 @@ plt.xlabel("Número de Clusters (k)")
 plt.ylabel("SSE (Suma de Errores Cuadrados)")
 plt.grid(True)
 plt.tight_layout()
-elbow_path = os.path.join(run_output_dir, "elbow_method.png")
+elbow_path = run_output_dir / "elbow_method.png"
 plt.savefig(elbow_path, dpi=200)
-plt.show()
+plt.close()
 print(f"💾 Gráfico guardado en {elbow_path}")
 
 # Elegir manualmente el k óptimo después de ver la gráfica
@@ -279,9 +281,9 @@ ax.set_zlabel("Depresión")
 ax.set_title("Visualización 3D de Clusters (K-Means)")
 ax.legend()
 plt.tight_layout()
-clusters_3d_path = os.path.join(run_output_dir, "clusters_3D.png")
+clusters_3d_path = run_output_dir / "clusters_3D.png"
 plt.savefig(clusters_3d_path, dpi=200)
-plt.show()
+plt.close(fig)
 print(f"💾 Gráfico 3D guardado en {clusters_3d_path}")
 
 # -------------------------------
@@ -294,9 +296,9 @@ plt.title("Distribución de Estudiantes por Cluster")
 plt.xlabel("Cluster")
 plt.ylabel("Cantidad de Estudiantes")
 plt.tight_layout()
-distribution_path = os.path.join(run_output_dir, "cluster_distribution.png")
+distribution_path = run_output_dir / "cluster_distribution.png"
 plt.savefig(distribution_path, dpi=200)
-plt.show()
+plt.close()
 print(f"💾 Gráfico guardado en {distribution_path}")
 
 # -------------------------------
@@ -317,7 +319,7 @@ for row in clusters_df.iter_rows(named=True):
         }
     })
 
-result_path = os.path.join(run_output_dir, "analytics_results.json")
+result_path = run_output_dir / "analytics_results.json"
 with open(result_path, "w") as f:
     json.dump(result, f, indent=2)
 
@@ -333,10 +335,10 @@ week_document = {
     "centroids": centroids,
     "clusters": result,
     "outputs": {
-        "elbow_chart": elbow_path,
-        "clusters_chart": clusters_3d_path,
-        "distribution_chart": distribution_path,
-        "analytics_json": result_path,
+        "elbow_chart": str(elbow_path),
+        "clusters_chart": str(clusters_3d_path),
+        "distribution_chart": str(distribution_path),
+        "analytics_json": str(result_path),
     },
 }
 
