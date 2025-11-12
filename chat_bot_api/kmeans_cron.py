@@ -2,6 +2,9 @@ import polars as pl
 import json, math, random, os, shutil
 from datetime import datetime, timedelta, date
 from pathlib import Path
+import matplotlib
+# Use a non-interactive backend to avoid Tkinter thread issues
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pymongo import MongoClient
 
@@ -335,10 +338,11 @@ week_document = {
     "centroids": centroids,
     "clusters": result,
     "outputs": {
-        "elbow_chart": str(elbow_path),
-        "clusters_chart": str(clusters_3d_path),
-        "distribution_chart": str(distribution_path),
-        "analytics_json": str(result_path),
+        # Guardar rutas relativas a la carpeta del cron (chat_bot_api)
+        "elbow_chart": str(elbow_path.relative_to(SCRIPT_DIR).as_posix()),
+        "clusters_chart": str(clusters_3d_path.relative_to(SCRIPT_DIR).as_posix()),
+        "distribution_chart": str(distribution_path.relative_to(SCRIPT_DIR).as_posix()),
+        "analytics_json": str(result_path.relative_to(SCRIPT_DIR).as_posix()),
     },
 }
 
