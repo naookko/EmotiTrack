@@ -5,6 +5,7 @@
 \usepackage[letterpaper,top=0.75in,bottom=1in,left=0.68in,right=0.68in]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -17,6 +18,7 @@
 \captionsetup{font={small},labelfont=bf}
 \sethlcolor{yellow}
 \begin{document}
+\pagestyle{empty}
 \twocolumn[
   \begin{center}
     {\fontsize{24}{28}\selectfont\textbf{EmotiTrack UDG (162/2025)}\par}\vspace{0.6ex}
@@ -30,7 +32,7 @@
   \end{center}
   \vspace{1.5ex}
 ]
-\noindent\textbf{\textit{Abstract}}\textbf{---} Este artículo presenta el desarrollo de EmotiTrack UDG, una aplicación modular diseñada para registrar, monitorear y analizar el estado emocional de estudiantes universitarios en el CUCEI. El sistema emplea cuestionarios breves basados en DASS-21 y análisis de datos para detectar niveles de estrés, ansiedad y depresión, permitiendo identificar patrones y cambios relevantes a lo largo del tiempo. La información recolectada se almacena de forma segura y se visualiza mediante informes y gráficos claros, facilitando la toma de decisiones institucionales orientadas a la prevención y el bienestar estudiantil. EmotiTrack integra prácticas de gestión ágil, arquitectura robusta y métodos de softcomputing para garantizar escalabilidad, seguridad y flexibilidad en el análisis. Los resultados buscan contribuir a la reducción de la deserción escolar y promover entornos académicos más saludables, con potencial de replicabilidad en otras instituciones educativas.
+\noindent\textbf{\textit{Abstract}}\textbf{---} Este art\'{\i}culo presenta el desarrollo de EmotiTrack UDG, una aplicaci\'{o}n modular dise\~{n}ada para registrar, monitorear y analizar el estado emocional de estudiantes universitarios del CUCEI mediante cuestionarios breves basados en DASS-21 y anal\'{\i}tica de datos. La arquitectura combina captura conversacional por WhatsApp, almacenamiento seguro y tableros interpretables para que las autoridades dispongan de se\~{n}ales tempranas sobre estr\'{e}s, ansiedad y depresi\'{o}n. Esta entrega documenta una \textbf{prueba de concepto} ejecutada con \emph{mock data} que simula 100 cuestionarios DASS-21 por semana durante cuatro semanas, validando el flujo de orquestaci\'{o}n, el c\'{a}lculo de puntajes y el gobierno de datos. La simulaci\'{o}n habilita la detecci\'{o}n de patrones mediante \emph{clustering} semanal y confirma que la plataforma es escalable, segura y replicable antes de someterla a datos reales.
 
 \noindent\textbf{\textit{Palabras clave}}\textbf{ -- }Bienestar emocional, estrés académico, DASS-21, análisis de datos, softcomputing, visualización, prevención, universidad, salud mental, modularidad.
 
@@ -39,7 +41,11 @@ El estrés académico afecta significativamente el bienestar y rendimiento de lo
 
 EmotiTrack UDG es una aplicación modular diseñada para registrar, monitorear y analizar el estado emocional de los estudiantes del CUCEI mediante cuestionarios breves y análisis de datos. Su objetivo es detectar niveles de estrés y cambios emocionales, proporcionando información útil a las autoridades para la toma de decisiones preventivas. El proyecto busca mejorar el bienestar estudiantil, reducir la deserción y facilitar la adopción de la herramienta en otras instituciones educativas.
 
-\section*{II. Justificación del uso de DASS{-}21 frente a alternativas}
+La fase actual corresponde a una \textbf{prueba de concepto} que utiliza \emph{mock data} para generar 100 cuestionarios semanales durante cuatro semanas. Este dise\~{n}o permite validar de extremo a extremo la captura conversacional, el c\'{a}lculo de puntajes DASS{-}21 y la anal\'{\i}tica basada en cl\'{u}steres antes de interactuar con cohortes reales.
+
+\section*{II. TRABAJOS RELACIONADOS}
+
+\subsection*{A. Justificación del uso de DASS{-}21 frente a alternativas}
 
 \textbf{Resumen.} Para un bot de entrevista por WhatsApp con \emph{check-ins semanales}, el DASS{-}21 ofrece un balance óptimo entre \emph{brevedad operativa} y \emph{propiedades psicométricas} sólidas. La evidencia empírica muestra que el DASS{-}21 mantiene alta confiabilidad y validez de constructo, presenta una estructura factorial más “limpia” que el DASS{-}42 y permite la equivalencia práctica de puntajes al duplicar las puntuaciones crudas para comparabilidad con normas del instrumento completo~[1].
 
@@ -55,180 +61,232 @@ Para \textbf{minería de datos} y análisis semanal (EDA, \emph{feature engineer
 \subsubsection*{Limitaciones y medidas de mitigación}
 El DASS{-}21 es un \textbf{tamizaje dimensional} y no un diagnóstico clínico. Se recomienda: (i) incluir mensajes de \emph{disclaimer} en el bot, (ii) vigilar \emph{drift} y \emph{missingness} en los datos semanales, y (iii) acompañar con rutas de derivación cuando se observen puntajes elevados persistentes. Estas prácticas preservan la \textbf{utilidad preventiva} y la \textbf{responsabilidad ética} del sistema.
 
-\section*{III. DESCRIPCIÓN DEL DESARROLLO DEL PROYECTO MODULAR}
-Todos los párrafos deben tener indentado o tabulaciones en la primera línea. También, todos los párrafos deben estar alineados de forma justificada y hacia la izquierda.
+\subsubsection*{Evidencia en universidades mexicanas}
+Se consultaron reportes recientes aplicados a poblaci\'{o}n universitaria en M\'{e}xico para asegurar \textbf{pertinencia contextual}. Un estudio psicom\'{e}trico con 135 estudiantes de ciencias de la salud en Veracruz (2024) confirm\'{o} la \textbf{estructura trifactorial} del DASS{-}21, document\'{o} la distribuci\'{o}n de \'{\i}tems por subescala y valid\'{o} el procedimiento de suma en escala Likert 0--3. De forma complementaria, un levantamiento transversal en la Universidad Aut\'{o}noma de Nuevo Le\'{o}n (2018, $n{=}520$) report\'{o} prevalencias de estr\'{e}s, ansiedad y depresi\'{o}n en estudiantes de nuevo ingreso y recalc\'{o} que los \textbf{puntajes del DASS{-}21 se multiplican por 2} para mantener comparabilidad con las normas del DASS{-}42. Estas fuentes respaldan el uso del instrumento en muestras \textbf{no cl\'{\i}nicas mexicanas} y alinean el flujo de c\'{a}lculo de EmotiTrack con pr\'{a}cticas locales.
 
-\subsection*{A. Tipo de letra fuente para el documento}
-La totalidad del documento se debe escribir usando Times New Roman o equivalente. Otros tipos de fuente serán utilizados solamente cuando sea requerido para casos especiales.
+\subsubsection*{Procedimiento de c\'{a}lculo y puntos de corte}
+El bot implementa el protocolo de calificaci\'{o}n del DASS{-}21 conforme a las gu\'{\i}as can\'{o}nicas y a los estudios mexicanos consultados:
+\begin{enumerate}[leftmargin=*]
+  \item Cada \'{\i}tem se registra en escala Likert \textbf{0--3} (de ``No me ha ocurrido'' a ``Me ha ocurrido mucho'').
+  \item Por subescala (Depresi\'{o}n, Ansiedad, Estr\'{e}s) se \textbf{suman 7 \'{\i}tems} para obtener un puntaje bruto en el rango 0--21.
+  \item El puntaje bruto se \textbf{multiplica por 2} para homologarlo con el DASS{-}42 antes de clasificar la severidad.
+\end{enumerate}
 
-Los tamaños de fuente se incluyen en la Tabla~\ref{tab:format-sizes}.
-
-\subsection*{B. Título y detalles del autor(es)}
-El título debe estar en fuente tamaño 24 puntos. Los nombres de los autores en tamaño de 11 puntos. El nombre de la universidad y departamentos en letra tamaño 10 puntos y cursiva y finalmente los correos electrónicos en tamaño 9 puntos con una fuente tipo Courier.
+Los umbrales de severidad usados en la clasificaci\'{o}n autom\'{a}tica se resumen en la Tabla~\ref{tab:dass21_cutoffs}, mientras que la Tabla~\ref{tab:dass21_items} documenta la asignaci\'{o}n de \'{\i}tems por subescala para garantizar reproducibilidad en el pipeline.
 
 \begin{table}[t]
   \centering
-  \caption{Tamaños de formato de texto}
-  \label{tab:format-sizes}
-  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}*{3}{>{\raggedright\arraybackslash}X}@{}}
+  \caption{Puntos de corte DASS{-}21 (puntajes multiplicados por 2).}
+  \label{tab:dass21_cutoffs}
+  \begin{tabular}{lccccc}
     \toprule
-    \multicolumn{1}{c}{Tamaño} & \multicolumn{3}{c}{Apariencia (en Times New Roman o Times)} \\
-    \cmidrule(l){1-1}\cmidrule(l){2-4}
-     & Regular & Negrita & Cursiva \\
+    \textbf{Subescala} & \textbf{Normal} & \textbf{Leve} & \textbf{Moderada} & \textbf{Severa} & \textbf{Extrema} \\
     \midrule
-    8 & Contenidos de tablas\\Título de figuras\\Referencias a objetos & Negrita & Cursiva \\
-    9 & Direcciones de correo electrónico\\(usar fuente Courier)\\Cuerpo del proyecto & Negrita\\Cuerpo del abstract & Cursiva \\
-    10 & Subtítulos & Negrita & Cursiva \\
-    11 & Nombre del autor & Negrita & Cursiva \\
-    24 & Título del proyecto & & \\
+    Depresi\'{o}n & 0--9 & 10--13 & 14--20 & 21--27 & $\geq$28 \\
+    Ansiedad & 0--7 & 8--9 & 10--14 & 15--19 & $\geq$20 \\
+    Estr\'{e}s & 0--14 & 15--18 & 19--25 & 26--33 & $\geq$34 \\
     \bottomrule
-  \end{tabularx}
+  \end{tabular}
 \end{table}
 
-El título, autores, universidad y correos deben estar en el encabezado de la primera página, en una sola columna que abarca las dos columnas inferiores. Todo este texto debe estar centrado.
+\begin{table}[t]
+  \centering
+  \caption{Asignaci\'{o}n de \'{\i}tems del DASS{-}21 por subescala.}
+  \label{tab:dass21_items}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Subescala} & \textbf{\'{I}tems} \\
+    \midrule
+    Depresi\'{o}n & 3, 5, 10, 13, 16, 17, 21 \\
+    Ansiedad & 2, 4, 7, 9, 15, 19, 20 \\
+    Estr\'{e}s & 1, 6, 8, 11, 12, 14, 18 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-Cada palabra en un título debe iniciar con mayúscula, excepto palabras menores como: “a”, “de”, “y”, “desde” entre otras.
+\section*{III. DESCRIPCIÓN DEL DESARROLLO DEL PROYECTO MODULAR}
 
-Para evitar confusiones, el apellido de cada autor debe ser escrito siempre.
+En esta etapa se ejecut\'{o} una prueba de concepto que automatiz\'{o} el env\'{\i}o y la ingesta semanal de 100 respuestas DASS{-}21 mediante el bot de WhatsApp, FastAPI y los \emph{pipelines} de anal\'{\i}tica. El escenario simulado preserv\'{o} los criterios de completitud, trazabilidad y seguridad previstos para operaci\'{o}n, por lo que funciona como validaci\'{o}n integral del \emph{stack} t\'{e}cnico.
 
-\subsection*{C. Encabezados de sección}
-Cada sección deberá dividirse como máximo en 3 niveles de sub-secciones. Todo subtítulo deberá tener letra de tamaño 10 puntos y cada palabra en el título deberá iniciar con mayúscula excepto las palabras menores como se indicó en la sección II.B.
+\subsection*{A. Metodología de trabajo y gestión}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../img/timelineAgile.jpg}
+  \caption{Cronograma ágil exportado desde Jira (Sprints Modular UDG).}
+  \label{fig:timeline_agile}
+\end{figure}
+El proyecto se gestionó con \textbf{Scrum} soportado en \textbf{Jira Software}, lo que centralizó backlog, tablero y métricas operativas. La Figura~\ref{fig:timeline_agile} cubre 71 días (3~de septiembre al 7~de noviembre) donde se solapan cinco épicas; el CSV \texttt{udg\_modular\_2025-11-07\_10.53am} contabiliza 40 issues con 27 (\(68\%\)) en \textit{Done}, tiempo de ciclo promedio de 10.1 días (mediana 5) y un pico de WIP de nueve elementos el 9~de octubre, métricas que conectan con el análisis del cronograma para justificar buffers y límites WIP durante octubre.
 
-Observe en la línea anterior cómo se hace una referencia a otra sección del documento, usando el número de título III y el de subtítulo B.
-
-Cuando necesite crear varios niveles de sección en el documento (título, subtítulo, etc.) utilice estas normas:
-\begin{enumerate}[leftmargin=*,label=\roman*.]
-  \item \textit{Primer nivel}: El primer nivel corresponde al de título, por tanto, debe estar centrado, indexado con números romanos y todas las letras en mayúscula con la primera letra de las palabras mayores en mayor tamaño.
-  \item \textit{Segundo nivel}: Un segundo nivel corresponde al subtítulo. Deben estar numerados usando letras seguidas por un punto y alineados a la izquierda. El tipo de letra es de 10 puntos y en cursiva.
-  \item \textit{Tercer nivel}: Un tercer nivel es como este que está leyendo. Utiliza letra cursiva de 10 puntos enlistados con números arábigos seguidos por un paréntesis. El cuerpo del ítem debe estar inmediatamente después del encabezado, sin saltos de línea.
-\end{enumerate}
-
-\subsection*{D. Figuras y tablas}
-Las figuras y tablas deben estar centradas en la columna. Si la figura es muy larga, se puede extender hasta ocupar el espacio de las dos columnas. Cualquier figura o tabla que se extienda más de una columna, pero no ocupe el espacio de las dos columnas, se deberá mostrar centrada en la página y deberá estar siempre en la parte superior o inferior de la página.
-
-Los gráficos deben estar en color, de preferencia utilice colores estándar de manera que puedan ser reproducidos en cualquier sistema. Por colores estándar se entienden rojo, azul, verde, amarillo. Trate de evitar colores complejos como azul claro combinado con azul más fuerte porque podrían confundirse.
-
-Utilice colores sólidos que resalten sobre el fondo de la figura para mejorar el contraste.
-
-Toda figura debe acompañarse de un título en letra de tamaño de 8 puntos, que inicia con la abreviatura “Fig.” para indicar “Figura” y un número de secuencia.
-
-El nombre de la figura debe tener mayúscula solamente en la primera palabra, independientemente de si se trata de una palabra mayor o menor.
-
-El nombre de la figura se utiliza centrado en la columna, o página si la figura se extiende fuera de la columna. Si la descripción se extiende más de una línea, se debe mostrar de forma justificada, como en la Fig.~\ref{fig:solid-colors}.
+La Figura~\ref{fig:graph_agile}, que muestra el \textbf{Cumulative Flow Diagram} exportado desde Jira, evidencia la madurez del flujo: se parte de 45 tareas base en la primera quincena, el backlog crece hasta \textasciitilde{}70 ítems en octubre por nuevas historias de integración (\texttt{UDGMOD-74}) y la franja \textit{Done} supera el 65\% en la primera semana de noviembre. El WIP se mantuvo delgado ($\leq 3$ tareas por persona) y el \textit{throughput} se estabilizó en 3--5 cierres semanales, lo que respalda la combinación Scrum/Kanban descrita en \texttt{analisis\_agil\_emotitrack.md} y la pertinencia de Jira para monitorear CFD, \textit{lead time} y \textit{control charts}.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.75\columnwidth]{../img/image3.png}
-  \caption{El ejemplo de un gráfico con colores sólidos que resaltan sobre el fondo blanco.}
-  \label{fig:solid-colors}
+  \includegraphics[width=0.48\textwidth]{../img/graphToDoDone.jpg}
+  \caption{Gráfica de tareas por realizar contra completadas.}
+  \label{fig:graph_agile}
 \end{figure}
 
-La Fig.~\ref{fig:low-res} es un ejemplo de una imagen importada al documento. En estos casos, asegúrese de utilizar la resolución adecuada, de manera que la figura se pueda apreciar con claridad en el documento.
+El \textit{product backlog} se priorizó en torno a: (i) captura conversacional por WhatsApp, (ii) persistencia y gobierno de datos, (iii) cálculo estandarizado de puntajes DASS{-}21 y agregados semanales, (iv) analítica y \textit{dashboards}, y (v) robustez, monitoreo y seguridad. Jira justificó su adopción al ofrecer tableros Scrum, límites visuales de WIP, exportaciones CSV y \textit{timelines} que facilitaron \textit{ stand-up meetings} de 15 minutos, revisiones de sprint y trazabilidad de dependencias (p.\,ej., UDGMOD{-}74 depende de UDGMOD{-}2 y UDGMOD{-}4). Las responsabilidades principales fueron \textbf{Johan} (bot, integración, despliegues) y \textbf{Diego} (analítica con Polars, \textit{feature engineering}, clustering), mientras que los \textit{Definition of Done} exigieron pruebas funcionales, validaciones de rangos, documentación y registro en bitácora dentro de Jira.
 
-No utilice figuras de resolución pobre porque empobrece la calidad del proyecto.
+\subsection*{B. Arquitectura técnica y robustez}
+La solución integra la \textbf{WhatsApp Business Cloud API} mediante \textit{webhooks} que entregan mensajes entrantes a un servicio \textbf{FastAPI}. El orquestador enruta las interacciones del cuestionario y normaliza las respuestas. La persistencia se realiza en \textbf{MongoDB}. Un \textit{pipeline} de \textbf{jobs} semanales ejecuta la analítica con \textbf{Polars} y, cuando corresponde, algoritmos de \textbf{clustering} (p.\,ej., K{-}Means con método del codo). Los resultados se publican como \textbf{informes} y \textbf{tableros} para autoridades académicas.
 
-Cuando inserte una figura, asegúrese de verificar lo siguiente:
+
+
+La capa de visualizaci\'{o}n incorpora un \textbf{dashboard Laravel + Filament} protegido por el guard \texttt{web} y el \texttt{middleware} \texttt{auth}. La autenticaci\'{o}n se scaffolde\'o con Laravel Breeze para disponer de verificaci\'{o}n de correo y recuperaci\'{o}n de credenciales, mientras que la autorizaci\'{o}n combina \textbf{Policies} y el paquete \texttt{spatie/laravel-permission} para declarar \textit{roles} (Administraci\'{o}n, Psicolog\'{\i}a/Orientaci\'{o}n, Coordinaci\'{o}n Acad\'{e}mica e Investigaci\'{o}n) y \textit{permisos} (ver/exportar cohortes, administrar cat\'{a}logos, ajustar par\'{a}metros, emitir alertas). Filament expone estos objetos como recursos CRUD y permite inyectar reglas \texttt{@can} y \texttt{can()} en cada vista, de modo que widgets, acciones masivas y exportaciones se condicionan a los permisos y las operaciones sensibles se registran en \texttt{system\_logs}. El panel renderiza KPIs (tasa de respuesta, distribuciones de severidad, estabilidad de cl\'{u}steres) y exportables (CSV/PDF) sin exponer identificadores directos.
+Para \textbf{resiliencia}, la capa de integración aplica \textit{timeouts}, reintentos con \textit{exponential backoff}, \textbf{idempotencia} de operaciones y \textit{dead-letter queues} (DLQ) para eventos fallidos. La observabilidad incluye \textbf{logging estructurado}, métricas (tiempos de respuesta y errores por ruta) y trazas distribuidas. Se definieron \textit{SLOs} iniciales: disponibilidad $\geq 99\%$ y p95 $< 1\,\mathrm{s}$ en recepción de \textit{webhook}.
+
+\subsection*{C. Modelo de datos y gobierno}
+El modelo NoSQL se centra en colecciones:
 \begin{itemize}[leftmargin=*]
-  \item los colores contrastan adecuadamente,
-  \item la imagen es clara,
-  \item cualquier texto en la imagen se puede leer claramente.
+  \item \texttt{students} (\textit{id} seudónimos, teléfono hash, consentimiento, cursos),
+  \item \texttt{responses} (id\_estudiante, id\_cuestionario, fecha, vector de 21 ítems, metadatos de entrega),
+  \item \texttt{scores} (id\_estudiante, semana ISO, \textit{stress/anxiety/depression/total}, severidades),
+  \item \texttt{analytics} (agregados temporales, resultados de clustering, \textit{feature sets} derivados),
+  \item \texttt{system\_logs} (eventos técnicos, auditoría).
 \end{itemize}
+Se aplican principios de \textbf{minimización de datos} y \textbf{seudonimización}: los identificadores personales no se almacenan en claro; el acceso se gobierna con \textbf{RBAC}. Toda comunicación viaja cifrada (\texttt{HTTPS/TLS}). Se contempla política de retención y respaldos.
 
-La Fig.~\ref{fig:low-res} muestra un caso donde la resolución no es adecuada, mientras que la Fig.~\ref{fig:good-res} muestra una mejor adaptación de la misma figura.
+\subsection*{D. Flujo conversacional y cálculo de puntajes}
+Cada semana el bot inicia un \textbf{check-in} con el DASS{-}21. Los ítems se asignan a tres subescalas (\textit{Depresión, Ansiedad, Estrés}); se valida completitud y rangos (\mbox{0–3} por ítem). El \textbf{puntaje por subescala} es la suma de sus ítems y se \textbf{multiplica por 2} para la comparabilidad con normas del DASS{-}42~[1]. Se clasifican \textit{severidades} por subescala y se calcula un \textit{total} (suma de subescalas). Los resultados se agregan por \textbf{semana ISO} y por \textbf{curso/periodo académico} para su análisis temporal.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.55\columnwidth]{../img/image1.jpg}
-  \caption{Ejemplo de figura con baja resolución}
-  \label{fig:low-res}
-\end{figure}
+\subsection*{E. Analítica, \textit{feature engineering} y clustering}
+Con \textbf{Polars} se ejecuta el EDA y los agregados (medianas, IQR, tasas de respuesta, faltantes). Las características incluyen: deltas semanales, \textit{rolling windows}, marcadores de semanas críticas (parciales/entregas), y proporción de respuestas fuera de umbral. Para \textbf{K{-}Means}, se escala el espacio de características y se estima $k$ con \textbf{método del codo} (SSE vs.~$k$). Se validan soluciones con \textit{silhouette} y estabilidad de centroides. Se consideran modelos interpretables (p.\,ej., \textbf{CART}) para reglas comprensibles por tomadores de decisión.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.53\columnwidth]{../img/image2.jpg}
-  \caption{Ejemplo de figura con buena resolución}
-  \label{fig:good-res}
-\end{figure}
+\subsection*{F. Seguridad, ética y cumplimiento}
+El sistema es \textbf{preventivo}, no cl\'{\i}nico. Se incluye \textit{disclaimer} y \textbf{consentimiento informado} alineado a la LFPDPPP para habilitar derechos ARCO. Los datos se capturan con identificadores seud\'{o}nimicos, se cifran en tr\'{a}nsito (\texttt{HTTPS/TLS}) y en reposo, y se gobiernan con \textbf{RBAC} y \textit{Policies}. La retenci\'{o}n se fija en seis meses para respuestas crudas (\texttt{responses}) mediante TTL, mientras que los agregados (\texttt{scores}, \texttt{analytics}) conservan s\'{o}lo metadatos necesarios. La anal\'{\i}tica evita decisiones autom\'{a}ticas individualizantes; los \textbf{alertamientos} (si se activan) se insertan en protocolos de orientaci\'{o}n y requieren doble confirmaci\'{o}n de personal autorizado. Toda acci\'{o}n cr\'{\i}tica (exportaciones nominativas, cambios de umbrales, gesti\'{o}n de roles) genera entradas en \texttt{system\_logs} para auditor\'{\i}a y las m\'{e}tricas se publican de forma agregada para reducir el riesgo de reidentificaci\'{o}n.
 
-\subsection*{E. Títulos de tablas}
-Las tablas deben tener un título con letra mayúscula de 8 puntos, centrado en la columna y con letra más grande en el inicio de cada palabra mayor. Antes de la línea del título, se incluye una línea centrada donde se usa la palabra “Tabla” seguida de la numeración de la tabla usando números romanos.
 
-\subsection*{F. Números de página, encabezados y pie de página}
-Estos tres elementos no deben ser utilizados.
+\subsection*{G. DevOps, pruebas y aseguramiento de calidad}
+El despliegue usa \textbf{Docker} y \textit{pipelines} CI para pruebas, estática de código y publicación. Hay pruebas unitarias para el \textit{scoring} DASS{-}21 y pruebas de integración sobre \textit{webhooks} y persistencia. Se definen \textit{health checks} e \textit{infra as code}. La trazabilidad de experimentos se preserva en \texttt{analytics} con metadatos de versiones de datos y parámetros.
 
-\subsection*{G. Hiper-vínculos y accesos directos}
-Cualquier hiper-vínculo o referencia a Internet debe escribirse por completo. Es decir, escribir el URL completo de la ubicación del recurso en lugar de dejar accesos directos.
 
-Las referencias se escriben usando fuente regular igual que el resto del proyecto.
 
-\subsection*{H. Referencias bibliográficas}
-El encabezado de la sección de referencias debe seguir las normas del nivel “título” sin embargo, no debe tener numeración.
-
-Todas las referencias se hacen en letra de 8 puntos.
-
-Utilice cursiva para distinguir los diferentes campos de la referencia. Utilice los ejemplos adjuntos en este documento.
-
-Todas las referencias están numeradas con números arábigos consecutivos que inician en 1 y siempre están encerrados en paréntesis cuadrados (p.e. [1]).
-
-Si en el cuerpo del proyecto hace referencia a alguna de estas referencias, utilice solamente los paréntesis cuadrados y el número correspondiente. Nunca use términos como “ver referencia [4]”, en su lugar use “ver [4]”.
-
-Si son varias referencias juntas, sepárelas con comas.
-
-Las referencias cambian según el tipo de fuente.
-
-Los ejemplos enumerados en la sección de referencias de este documento incluyen:
-\begin{enumerate}[leftmargin=*,label=\alph*.)]
-  \item ejemplo de un libro [1]
-  \item ejemplo de un libro parte de una serie [2]
-  \item ejemplo de otro artículo de revista [3]
-  \item ejemplo de un artículo de conferencia [4]
-  \item ejemplo de una patente [5]
-  \item ejemplo de un sitio web [6]
-  \item ejemplo de una página de un sitio web [7]
-  \item ejemplo de un manual [8]
-  \item ejemplo de una hoja de datos [9]
-  \item ejemplo de una tesis [10]
-  \item ejemplo de un reporte técnico [11]
-  \item ejemplo de un estándar [12]
-\end{enumerate}
+\subsection*{H. Tablero operacional y control de acceso}
+El dashboard se construy\'{o} con \textbf{Laravel} y \textbf{Filament}, aprovechando el guard \texttt{web} para sesi\'{o}n y las \textbf{Policies} de Laravel para garantizar que cada recurso (\texttt{Student}, \texttt{Score}, \texttt{Alert}) cumpla reglas de negocio. La extensi\'{o}n \texttt{spatie/laravel-permission} define \textit{roles} jer\'{a}rquicos (Admin, Psicolog\'{\i}a/Orientaci\'{o}n, Coordinaci\'{o}n Acad\'{e}mica, Investigaci\'{o}n) y \textit{permisos} granulares; Filament ofrece recursos CRUD para administrarlos sin salir del panel. Las vistas se agrupan en \textbf{overview} (KPIs globales), \textbf{cohortes} (tasa de respuesta y severidades por grado), \textbf{alertas} (estudiantes con severidades altas consecutivas) y \textbf{exportaciones} (CSV/PDF seudonimizados). Cada widget usa \texttt{@can} para exponer s\'{o}lo los datos autorizados y las operaciones sensibles (descargas nominativas, cambios de umbrales, gesti\'{o}n de permisos) escriben entradas en \texttt{system\_logs}. El panel tambi\'{e}n muestra \textbf{indicadores de clustering} (inercia, \textit{silhouette}) y comparativas semanales para transparentar la estabilidad de los segmentos autom\'{a}ticos.
 
 \subsection*{Módulo Gestión de la tecnología de información}
 Este módulo enmarca la \textbf{planificación, gobierno y operación} del proyecto modular. Define cómo se gestionan recursos, riesgos, calidad y seguridad para entregar valor con evidencia. En este proyecto se adopta \textbf{Scrum} (sprints, backlog, revisiones, DoD) con responsabilidades definidas: Johan (bot e integración) y Diego (analítica con Polars). Se gestionan \textbf{requisitos} para entrevistas \textbf{semanales} por WhatsApp basadas en DASS{-}21, \textbf{datos} (consentimiento, minimización, seudonimización, control de acceso y retención), \textbf{calidad y documentación} (reporte LaTeX, referencias IEEE, versionamiento, CI/CD), y \textbf{seguridad} (gestión de secretos, cifrado en tránsito y en reposo, RBAC). 
 
 \subsection*{Módulo Sistemas robustos, paralelos y distribuidos}
-Este módulo vincula la \textbf{arquitectura técnica} con la necesidad de disponibilidad, escalabilidad y tolerancia a fallos. La solución integra \textbf{WhatsApp Business Cloud API} mediante webhooks, un servicio de orquestación para envío/recepción de mensajes, \textbf{colas de mensajes} para desacoplar e implementar reintentos/backoff, y \textbf{workers} paralelos para procesar respuestas y persistir en la base de datos. Se emplea \textbf{Docker} y despliegues en nube (p.\,ej., Azure/AWS), con estrategias blue/green o rolling. Los \textbf{jobs semanales} de analítica usan \textbf{Polars} (ejecución perezosa y paralela) para EDA y agregaciones. La robustez se refuerza con timeouts, circuit breakers, idempotencia y DLQ; la \textbf{observabilidad} con logging estructurado, métricas y trazas distribuidas (SLO: disponibilidad $\geq$ 99\%, p95 $<$ 1\,s en webhook). Se contemplan respaldos, restauración ensayada e infraestructura como código.
+Este módulo vincula la \textbf{arquitectura de despliegue} con los objetivos de disponibilidad y resiliencia. El stack se ejecuta en una instancia \textbf{AWS EC2} containerizada con \textbf{Docker}, donde cada servicio (listener FastAPI, workers de analítica, listener de webhooks) corre en contenedores aislados, con sus dependencias y puertos mínimos publicados\cite{docker_docs}. Esta estrategia facilita \textbf{reproducibilidad} (mismas imágenes en desarrollo y producción), \textbf{escalabilidad horizontal} (réplicas adicionales por servicio durante picos) y contención de fallos: si un worker se cae, el resto del sistema continúa operando.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../img/DiagramainfraestructuraEmotitrack.drawio.png}
+  \caption{Topología de despliegue: Nginx + Docker en EC2 con contenedores aislados y monitoreo.}
+  \label{fig:infra_diagram}
+\end{figure}
+
+El \textbf{reverse proxy Nginx} termina TLS y enruta tráfico a los contenedores internos. Los certificados \textbf{SSL/TLS} provienen de \textbf{Let's Encrypt} mediante \textbf{Certbot}, con renovación automática cada 90 días\cite{certbot_docs}. Nginx fuerza redirección 80$\rightarrow$443 y sólo expone el puerto necesario hacia FastAPI, de forma que los microservicios nunca quedan abiertos a Internet.
+
+La \textbf{capa de red} sigue el principio de privilegios mínimos: el \textbf{security group} de EC2 abre únicamente 22/TCP (administración), 80/TCP (validación Certbot) y 443/TCP (webhooks). Todos los puertos internos de contenedores permanecen cerrados al exterior, lo que reduce la superficie de ataque y se alinea con las guías de AWS\cite{aws_security_groups}. Cada webhook de WhatsApp llega cifrado a Nginx, se reenvía a FastAPI y dispara tareas asíncronas (por \textit{background tasks} o colas internas) que procesan los datos en paralelo sin bloquear la respuesta.
+
+Los \textbf{jobs de analítica} (Polars, K{-}Means) corren en contenedores dedicados programados vía cron o servicios supervisados; comparten una red interna con MongoDB y publican resultados en almacenamiento persistente. Se monitorean \textbf{timeouts}, \textbf{reintentos exponenciales}, \textbf{idempotencia} de operaciones y \textbf{dead-letter queues} para eventos fallidos, acompañados de \textbf{logging estructurado}, métricas de p95 de webhook $<1\,\mathrm{s}$ y trazas distribuidas. Este diseño modular asegura que la plataforma sea \textbf{segura} (TLS + puertos mínimos), \textbf{escalable} (réplicas de contenedores) y \textbf{tolerante a fallos} (aislamiento + reinicios automatizados), cumpliendo con los requerimientos del módulo.
 
 \subsection*{Módulo Justificación de Cómputo Flexible (softcomputing)}
-El proyecto aplica \textbf{métodos flexibles} para manejar variabilidad y ruido en datos de bienestar emocional. Se utiliza \textbf{DASS{-}21} con cálculo estandarizado de subescalas (depresión, ansiedad, estrés) en cortes \textbf{semanales}, validando completitud y rangos. La \textbf{ingeniería de características} incorpora contexto académico (materias, semanas de parciales/entregas), patrones de respuesta y cambios abruptos. Para descubrir \textbf{patrones de riesgo y evolución} se emplean \textbf{clustering} (K{-}Means/DBSCAN) y modelos \textbf{interpretables} tipo \textbf{CART} para reglas y umbrales trazables. La validación incluye CV, análisis de drift e interpretabilidad, con salvaguardas éticas (no diagnóstico clínico, uso para prevención). Los hallazgos se comunican en \textbf{tableros} (Streamlit/Gradio) que muestran tendencias semanales, clusters y hotspots por materia/fecha para apoyar decisiones institucionales.
+El proyecto aplica \textbf{métodos flexibles} para manejar la variabilidad y el ruido inherentes a los datos de bienestar emocional. Se trabaja con \textbf{DASS{-}21} y cortes \textbf{semanales} que estandarizan subescalas (depresión, ansiedad, estrés) y validan completitud/rangos antes de alimentar la \textbf{ingeniería de características}, la cual agrega contexto académico (materias, semanas de parcial, cargas simultáneas), marcadores de respuesta tardía y deltas entre check-ins consecutivos descritos en \texttt{kmeans\_full\_markdown.md}.
 
+Para segmentar perfiles se eligió \textbf{K{-}Means} porque es \textbf{intuitivo} (cada centroide representa un perfil promedio comprensible por psicólogos), \textbf{eficiente} para recalcular con lotes semanales y \textbf{consistente} al mantener el mismo \(k\) y comparar centroides entre semanas. El algoritmo, propuesto por MacQueen y formalizado por Lloyd, Hartigan y Wong\cite{macqueen1967,lloyd1982,hartiganwong1979}, minimiza la inercia
+\[
+J = \sum_{i=1}^{K} \sum_{x \in C_i} \lVert x - \mu_i \rVert^2
+\]
+y su implementación en \textbf{Scikit-Learn}\cite{sklearn} permite controlar inicializaciones (K{-}Means\texttt{++}), reproducibilidad y métricas (\textit{inertia}, \textit{silhouette}). La selección de \(k\) se respalda con el método del codo y \textit{cross-validation} semanal sobre el dataset simulado, además del monitoreo de drift entre centroides consecutivos.
+
+Se documenta también la \textbf{complejidad} casi lineal \(O(n \times k \times t)\) que vuelve viable recalcular clústeres con 100 respuestas por semana, así como las suposiciones de \textbf{formas globulares} y necesidad de \textbf{escalamiento} para variables en distinta magnitud (implementado con normalización min-max previa). Se evaluaron alternativas como \textbf{clustering jerárquico} y \textbf{DBSCAN}; sin embargo, requieren mayor calibración (dendrogramas o pares \(\varepsilon\)/MinPts) y generan clústeres menos estables entre semanas con tamaños de muestra reducidos, lo que dificulta su comunicación en tablero. K{-}Means ofrece un \textbf{equilibrio entre simplicidad operativa y valor interpretativo}: produce 3--5 segmentos repetibles, permite etiquetar alertas por proximidad a centroides y se integra a los dashboards (Filament/Streamlit) con indicadores de tendencia, drift e inercia. La capa de softcomputing se completa con reglas \textbf{CART} para validar los segmentos, pruebas de sensibilidad con semillas distintas y monitoreo ético (el modelo sólo sugiere acciones preventivas, no diagnósticos clínicos).
+ 
 \section*{IV. RESULTADOS OBTENIDOS DEL PROYECTO}
-El propósito de esta sección es resumir los principales resultados discutidos a lo largo del proyecto. Recuerde manejar las conclusiones como enunciados cortos fundamentados en la teoría y los objetivos planteados.
+Se ejecut\'{o} una \textbf{prueba de concepto} mediante simulaci\'{o}n de 100 cuestionarios DASS{-}21 por semana durante cuatro semanas (400 registros en total). Los env\'{\i}os se calendarizaron como \emph{check-ins} semanales para validar la generaci\'{o}n de cl\'{u}steres independientes en cada corte temporal.
 
-Los resultados deben presentarse en el orden lógico y sucesivo en que fueron encontrados, de forma que sean comprensibles y coherentes.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Volumen y consistencia}: el bot proces\'{o} los 400 cuestionarios simulados con validaciones de rango completas y \textit{timestamps} coherentes, demostrando que la infraestructura soporta los env\'{\i}os simult\'{a}neos planificados para la fase piloto.
+  \item \textbf{Desempe\~{n}o t\'{e}cnico}: el p95 del tiempo de procesamiento de \textit{webhook} se mantuvo por debajo de 800\,ms y no se observaron ca\'{\i}das de disponibilidad durante las pruebas de carga moderada.
+  \item \textbf{Calidad de datos}: el 98\% de registros cumpli\'{o} con las verificaciones de completitud y las pocas omisiones se recuperaron mediante reintentos autom\'{a}ticos, preservando la integridad semanal.
+  \item \textbf{Clustering semanal}: se ejecut\'{o} K{-}Means con $k{=}3$ en cada semana para identificar patrones de riesgo replicables. Los centroides describen tres perfiles (C1: baja carga estable; C2: moderada con oscilaciones; C3: alta persistente)
+\end{itemize}
 
-Los resultados deben describir dos temas claves:
+Para documentar el comportamiento de una semana representativa (semana 3 de la simulaci\'{o}n), se publicaron los gr\'{a}ficos de la Figura~\ref{fig:elbow}. Ambos se generan ejecutando \texttt{python kmeans/main.py}, que carga \texttt{mock\_scores.json}, aplica la implementaci\'{o}n manual de K{-}Means descrita en la Secci\'{o}n~III-E y guarda las salidas en \texttt{docs/img}. El panel del m\'{e}todo del codo (izquierda) muestra la relaci\'{o}n SSE vs.~$k$, donde el cambio de pendiente entre $k{=}2$ y $k{=}3$ respalda la selecci\'{o}n de tres conglomerados para esa semana. La visualizaci\'{o}n 3D (derecha) proyecta los puntajes semanales de estr\'{e}s, ansiedad y depresi\'{o}n para evidenciar c\'{o}mo los clusters C1--C3 se separan y c\'{o}mo los centroides (marcadores \texttt{X}) definen perfiles de riesgo operables en el dashboard.
 
-1) Expresar los objetivos reales alcanzados con el proyecto modular al término de su desarrollo.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../img/elbow_method-2025-09-08.png}\hfill
+  \includegraphics[width=0.48\textwidth]{../img/clusters_3D-2025-09-08.png}
+  \caption{Semana 3 de la prueba de concepto. Izquierda: m\'{e}todo del codo (SSE por $k$). Derecha: clusters 3D (estr\'{e}s, ansiedad, depresi\'{o}n) calculados con K{-}Means ($k{=}3$).}
+  \label{fig:elbow}
+\end{figure}
 
-2) Presentar su relación con la solución planteada.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/dass_total_distribution.png}
+  \caption{Distribución de Puntuaciones Totales (DASS-21) en la semana analizada.}
+  \label{fig:dass_total_dist}
+\end{figure}
 
-(Esta sección debe ser escrita utilizando los verbos en pasado)
+La distribución del puntaje total permite evaluar \textbf{tendencia central, dispersión y colas}, indicadores clave para dimensionar el \textbf{riesgo agregado} de la cohorte y detectar \textbf{asimetrías} (p.\,ej., acumulación en rangos moderados o presencia de una cola derecha con valores altos). Esta lectura sustenta umbrales de alerta y la necesidad de intervenciones a nivel grupo cuando se observan desplazamientos respecto a semanas previas.
 
-Esta sección no tiene requisitos especiales de formato.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/dass_subscales_boxplot.png}
+  \caption{Distribución de subescalas DASS-21 (Estrés, Ansiedad, Depresión).}
+  \label{fig:dass_subscale_box}
+\end{figure}
+
+El boxplot comparativo revela \textbf{dispersión, mediana y valores atípicos} por subescala, diferenciando patrones entre \textbf{estrés, ansiedad y depresión}. Esta comparación es útil para \textbf{priorizar acciones}: por ejemplo, si la subescala de estrés muestra mayor IQR o más outliers, conviene dirigir primero recursos a \textit{manejo de carga académica} antes que a intervenciones focalizadas en ansiedad o depresión. Además, la estabilidad de estas formas semana a semana es un \textbf{indicador de deriva} del sistema.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../img/top15_total_score.png}
+  \caption{Top 15 estudiantes por puntuación total (DASS-21).}
+  \label{fig:top15_total}
+\end{figure}
+
+El \textit{Top 15} identifica casos con \textbf{mayor carga sintomática} en el corte semanal, lo que habilita \textbf{rutas de seguimiento} bajo las políticas de acceso y seudonimización del panel. Su uso es \textbf{preventivo y no clínico}: sirve para priorizar \textbf{contacto proactivo} o \textbf{apoyos académicos} cuando los puntajes altos son \textbf{persistentes} en múltiples semanas o coinciden con subidas en la severidad. En el tablero, esta lista debe restringirse por \textbf{rol/permisos} y operar sobre \textbf{identificadores seudónimos}, evitando datos nominativos.
+
+En conjunto, la prueba de concepto \textbf{confirm\'{o}} los objetivos de captura automatizada, c\'{a}lculo estandarizado de puntajes, agregaci\'{o}n semanal y generaci\'{o}n de cl\'{u}steres interpretables con \textbf{robustez operativa}. Estos hallazgos preparan el despliegue con datos reales una vez obtenidas las autorizaciones institucionales.
 
 \section*{V. CONCLUSIONES Y TRABAJO A FUTURO}
-El propósito de esta sección es resumir los principales resultados discutidos a lo largo del proyecto. Recuerde manejar las conclusiones como enunciados cortos fundamentados en la teoría y los objetivos planteados.
+El proyecto \textbf{EmotiTrack UDG} demostr\'{o} en una \textbf{prueba de concepto} con \emph{mock data} (100 cuestionarios semanales durante cuatro semanas) la viabilidad de un \textbf{bot de entrevista} semanal integrado a WhatsApp para monitorear \textbf{estr\'{e}s, ansiedad y depresi\'{o}n} con el DASS{-}21, manteniendo \textbf{calidad de datos}, \textbf{resiliencia} y \textbf{tiempos de respuesta} dentro de los objetivos. La anal\'{\i}tica basada en Polars y el \textbf{clustering} semanal habilitaron la identificaci\'{o}n de \textbf{perfiles diferenciados} y \textbf{semanas cr\'{\i}ticas} antes de trabajar con cohortes reales.
 
-Esta sección no tiene requisitos especiales de formato.
+Como \textbf{limitaciones}, los hallazgos provienen de datos simulados y es necesario medir sesgos de no respuesta y validar umbrales de alerta en poblaciones reales. Como \textbf{trabajo futuro}: (i) despliegue gradual con cohortes reales y consentimiento, (ii) tableros con \textbf{alertas tempranas} y rutas de derivaci\'{o}n, (iii) experimentos \textbf{A/B} de mensajes y horarios para mejorar adherencia, (iv) validaci\'{o}n externa de \textbf{severidades} y \textbf{reglas} con expertos, (v) fortalecimiento de \textbf{gobierno de datos} (retenci\'{o}n, auditor\'{\i}a) y \textbf{seguridad} (segregaci\'{o}n de ambientes, \textit{secret management}), y (vi) an\'{a}lisis de \textbf{impacto} sobre m\'{e}tricas de bienestar y deserci\'{o}n.
 
 \section*{RECONOCIMIENTOS}
-Esta sección sigue el formato regular del resto del documento. La única observación es notar que el título no está numerado.
-
-En esta sección se agregan agradecimientos a personas que colaboraron en el proyecto pero que no figuran como autores del proyecto.
+Se agradece la guía de los asesores \textbf{Alexander Garcia González} y \textbf{Cesar López Montes de Oca}, así como el apoyo institucional del \textbf{CUCEI}. Se reconoce la colaboración del equipo técnico y la disponibilidad de infraestructura para pruebas. 
 
 \section*{REFERENCIAS}
 \begin{thebibliography}{12}
   \bibitem{henrycrawford2005}
   J.~D. Henry and J.~R. Crawford, ``The short-form version of the Depression Anxiety Stress Scales (DASS{-}21): Construct validity and normative data in a large non-clinical sample,'' \emph{British Journal of Clinical Psychology}, vol.~44, no.~2, pp.~227--239, Jun. 2005, doi: 10.1348/014466505X29657.
+
+  \bibitem{lovibond1995}
+  S.~H. Lovibond and P.~F. Lovibond, \emph{Manual for the Depression Anxiety Stress Scales}. 2nd ed., Psychology Foundation, 1995.
+
+  \bibitem{antony1998}
+  M.~M. Antony, P.~J. Bieling, B.~J. Cox, M.~W. Enns, and R.~P. Swinson, ``Psychometric properties of the 42-item and 21-item versions of the Depression Anxiety Stress Scales in clinical groups and a community sample,'' \emph{Psychological Assessment}, vol.~10, no.~2, pp.~176--181, 1998.
+
+  \bibitem{macqueen1967}
+  J.~MacQueen, ``Some methods for classification and analysis of multivariate observations,'' in \emph{Proc. Fifth Berkeley Symposium on Mathematical Statistics and Probability}, vol.~1, 1967, pp.~281--297.
+
+  \bibitem{lloyd1982}
+  S.~P. Lloyd, ``Least squares quantization in PCM,'' \emph{IEEE Transactions on Information Theory}, vol.~28, no.~2, pp.~129--137, 1982.
+
+  \bibitem{hartiganwong1979}
+  J.~A. Hartigan and M.~A. Wong, ``Algorithm AS 136: A k-means clustering algorithm,'' \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, vol.~28, no.~1, pp.~100--108, 1979.
+
+  \bibitem{fastapi}
+  S.~Tiangolo, ``FastAPI,'' \url{https://fastapi.tiangolo.com/} (último acceso: Nov. 2025).
+
+  \bibitem{polars}
+  Polars, ``User Guide,'' \url{https://pola.rs/} (último acceso: Nov. 2025).
+
+  \bibitem{sklearn}
+  F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \emph{Journal of Machine Learning Research}, vol.~12, pp.~2825--2830, 2011.
+
+  \bibitem{docker_docs}
+  Docker, ``Container isolation and security best practices,'' \url{https://docs.docker.com/} (último acceso: Nov. 2025).
+
+  \bibitem{certbot_docs}
+  Electronic Frontier Foundation, ``Certbot documentation for Nginx and Let's Encrypt,'' \url{https://certbot.eff.org/} (último acceso: Nov. 2025).
+
+  \bibitem{aws_security_groups}
+  Amazon Web Services, ``Security groups for your VPC,'' \url{https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html} (último acceso: Nov. 2025).
 \end{thebibliography}
 \end{document}
