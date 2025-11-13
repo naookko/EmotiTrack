@@ -1,9 +1,13 @@
 import math
 import os
 import random
+import mimetypes
+import logging
 
 from datetime import datetime
+from pathlib import Path
 from fastapi import FastAPI, Body, Query, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 
@@ -16,10 +20,50 @@ responses = db["responses"]
 scores = db["scores"]
 analytics = db["analytics"]
 logs = db["system_logs"]
+SCRIPT_DIR = Path(__file__).resolve().parent
+API_ROOT = SCRIPT_DIR if SCRIPT_DIR.name != "chat_bot_api" else SCRIPT_DIR.parent
+RESOURCES_BASE_DIR = (SCRIPT_DIR / "kmeans_result_vault").resolve()
+LOGGER = logging.getLogger("chat_bot_api.resources")
 
 #Start API
 app = FastAPI(title="Chat Bot API")
 
+
+def _generate_questionnaire_id() -> str:
+    """Return a sequential questionnaire identifier."""
+
+    next_id = responses.count_documents({}) + 1
+    candidate = str(next_id)
+    while responses.find_one({"questionnaire_id": candidate}, {"_id": 1}):
+        next_id += 1
+        candidate = str(next_id)
+    return candidate
+
+
+def _resolve_resource_path(folder: str, filename: str) -> Path:
+    """Resolve a resource path inside kmeans_result_vault (existence only)."""
+
+    base_dir = RESOURCES_BASE_DIR
+    if not base_dir.exists():
+        raise HTTPException(status_code=404, detail="No analytics resources available yet")
+
+    folder_path = (base_dir / (folder or "")).resolve()
+    if not folder_path.is_dir() or not _is_within(folder_path, base_dir):
+        raise HTTPException(status_code=404, detail="Folder not found")
+
+    file_path = (folder_path / (filename or "")).resolve()
+    if not file_path.is_file() or not _is_within(file_path, folder_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return file_path
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
 
 #Models
 class StudentIn(BaseModel):
@@ -231,6 +275,25 @@ def get_student(wha_id: str):
     if not student:
         return {"message": "Student not found"}
     return student
+
+
+@app.get("/resources/{folder}/{filename}")
+def get_resource_file(
+    folder: str,
+    filename: str,
+):
+    """Serve generated analytics artifacts directly from kmeans_result_vault."""
+
+    file_path = _resolve_resource_path(folder, filename)
+    media_type, _ = mimetypes.guess_type(str(file_path))
+    if not media_type:
+        media_type = "application/octet-stream"
+    LOGGER.info("Serving resource folder=%s file=%s", folder, file_path.name)
+    return FileResponse(
+        path=file_path,
+        media_type=media_type,
+        filename=file_path.name,
+    )
 @app.get("/responses")
 def get_all_responses(
     page: int = Query(1, ge=1),
